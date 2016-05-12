@@ -19,7 +19,7 @@ if 'AWG' in locals():
     AWG._ins._visainstrument.close()   # Trying to close previous AWG session. 
 
        
-AWG = qt.instruments.create('AWG', 'Tektronix_AWG5014', address='169.254.111.236')
+#AWG = qt.instruments.create('AWG', 'Tektronix_AWG5014', address='169.254.111.236')  # Changed
 
 
 
@@ -244,7 +244,7 @@ def UHF_measure(device_id = 'dev2148', maxtime = 5):
     daq.sync()
     daq.subscribe(path)
 
-    AWG.force_trigger() # This trigger also triggers lockin aquisition/BNC cable
+    #AWG.force_trigger() # This trigger also triggers lockin aquisition/BNC cable  # CHANGED
     
     start = time.time()  # Starting time counter
     while True:  # Readout data block by block until whole buffer is read out

@@ -2,6 +2,7 @@ from numpy import pi, random, arange, size
 from time import time,sleep
 import T1_lib_v2 as T1_lib
 
+
 #####################################################
 # this part is to simulate some data, you can skip it
 #####################################################
@@ -51,7 +52,7 @@ data.create_file()
 # If the 'name' doesn't already exists, a new window with that name
 # will be created. For 3d plots, a plotting style is set.
 plot2d = qt.Plot2D(data, name='measure2D')
-plot2d.set_style('points')
+plot2d.set_style('lines')
 
 
 # preparation is done, now start the measurement.
@@ -61,7 +62,7 @@ for v in v_vec:
    
 
     # readout
-    shotCH1,shotCH2 = T1_lib.UHF_measure()  # Reading out UHF LI scope shot. Channel one data in shotCH1, channel two data in shotCH2
+    shotCH1,shotCH2 = T1_lib.UHF_measure(maxtime = 1)  # Reading out UHF LI scope shot. Channel one data in shotCH1, channel two data in shotCH2
 
 
     # save the data point to the file, this will automatically trigger
