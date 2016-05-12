@@ -11,15 +11,15 @@ from time import time,sleep
 #####################################################
 # here is where the actual measurement program starts
 #####################################################
-IVVI = qt.instruments.create('DAC','IVVI',interface = 'COM4', polarity=['BIP', 'BIP', 'NEG', 'BIP'], numdacs=16)
+IVVI = qt.instruments.create('DAC','IVVI',interface = 'COM4', polarity=['BIP', 'BIP', 'BIP', 'BIP'], numdacs=16)
 dmm = qt.instruments.create('dmm','a34410a', address = 'USB0::0x0957::0x0607::MY53003401::INSTR')
 
-gain = 10e6 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for 1G
+gain = 1e6 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for 1G
 
-
+bias = 500
 # you define two vectors of what you want to sweep. In this case
 # a magnetic field (b_vec) and a frequency (f_vec)
-v_vec = arange(0,2000,100)
+v_vec = arange(-500,500,5)
 
 
 # you indicate that a measurement is about to start and other
@@ -58,15 +58,16 @@ data.create_file()
 # If the 'name' doesn't already exists, a new window with that name
 # will be created. For 3d plots, a plotting style is set.
 plot2d = qt.Plot2D(data, name='measure2D_2')
-plot2d.set_style('points')
+plot2d.set_style('lines')
 
 
 # preparation is done, now start the measurement.
+#IVVI.set_dac1(bias)
 # It is actually a simple loop.
 start = time()
 for v in v_vec:
     # set the voltage
-    IVVI.set_dac13(v)
+    IVVI.set_dac1(v)
 
     # readout
     result = dmm.get_readval()/gain*1e12

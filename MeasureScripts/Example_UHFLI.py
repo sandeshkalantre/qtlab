@@ -74,7 +74,8 @@ for v in v_vec:
     # if the plots need updating.
     qt.msleep(0.001)
 stop = time()
-print 'Trajanje: %s sec' % (stop - start, )
+print 'Duration: %s sec' % (stop - start, )
+print 'Overal duration prediction: %s sec' % (stop - start, )*len(v)
 
    
 

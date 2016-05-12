@@ -1,5 +1,6 @@
 from numpy import pi, random, arange, size
 from time import time,sleep
+import datetime
 
 #####################################################
 # this part is to simulate some data, you can skip it
@@ -18,8 +19,8 @@ gain = 10e6 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 fo
 
 # you define two vectors of what you want to sweep. In this case
 # a magnetic field (b_vec) and a frequency (f_vec)
-v1_vec = arange(-10,10,1)
-v2_vec = arange(-10,10,1)
+v1_vec = arange(-400,400,1)
+v2_vec = arange(-500,500,1)
 
 
 
@@ -34,7 +35,7 @@ qt.mstart()
 # and will be called:
 # <timestamp>_testmeasurement.dat
 # to find out what 'datadir' is set to, type: qt.config.get('datadir')
-data = qt.Data(name='testmeasurement')
+data = qt.Data(name='Overnight_diamond_test')
 
 # Now you provide the information of what data will be saved in the
 # datafile. A distinction is made between 'coordinates', and 'values'.
@@ -57,7 +58,7 @@ data.create_file()
 # measurement a 'name' can be provided so that window can be reused.
 # If the 'name' doesn't already exists, a new window with that name
 # will be created. For 3d plots, a plotting style is set.
-plot2d = qt.Plot2D(data, name='measure2D')
+plot2d = qt.Plot2D(data, name='measure2D',autoupdate=False)
 plot3d = qt.Plot3D(data, name='measure3D', coorddims=(0,1), valdim=2, style='image')
 
 
@@ -65,12 +66,16 @@ plot3d = qt.Plot3D(data, name='measure3D', coorddims=(0,1), valdim=2, style='ima
 # preparation is done, now start the measurement.
 # It is actually a simple loop.
 
+init_start = time()
+vec_count = 0
 for v1 in v1_vec:
-    
+
+    start = time()
     # set the voltage
-    IVVI.set_dac1(v1)
+    IVVI.set_dac3(v1)
     for v2 in v2_vec:
-        IVVI.set_dac2(v2)
+
+        IVVI.set_dac1(v2)
 
         # readout
         result = dmm.get_readval()/gain*1e12
@@ -83,6 +88,14 @@ for v1 in v1_vec:
         # if the plots need updating.
         qt.msleep(0.001)
     data.new_block()
+    stop = time()
+    plot2d.update()
+    vec_count = vec_count + 1
+    print 'Estimated time left: %s hours\n' % str(datetime.timedelta(seconds=int((stop - start)*(v1_vec.size - vec_count))))
+    
+    
+
+print 'Overall duration: %s sec' % (stop - init_start, )
 
    
 
