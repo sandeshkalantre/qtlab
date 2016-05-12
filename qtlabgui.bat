@@ -10,8 +10,8 @@
 ::SET PATH=%CD%\3rd_party\gtk\bin;%CD%\3rd_party\gtk\lib;%PATH%
 
 :: Check for version of python
-IF EXIST c:\python27\python.exe (
-    SET PYTHON_PATH=c:\python27
+IF EXIST C:\Users\nanoelectronics\AppData\Local\Enthought\Canopy32\User\Scripts\python.exe (
+    SET PYTHON_PATH=C:\Users\nanoelectronics\AppData\Local\Enthought\Canopy32\User\Scripts
     GOTO mark1
 )
 IF EXIST c:\python26\python.exe (
@@ -24,4 +24,4 @@ IF EXIST c:\python26\python.exe (
 start %PYTHON_PATH%\pythonw.exe clients/client_gtk.py --module gui_client --config gui_client.cfg %*
 
 :: Use this for easier debugging
-:: start %PYTHON_PATH%\python.exe clients/client_gtk.py --module gui_client --config gui_client.cfg %*
+::start %PYTHON_PATH%\python.exe clients/client_gtk.py --module gui_client --config gui_client.cfg %*

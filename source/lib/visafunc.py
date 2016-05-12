@@ -17,17 +17,20 @@
 
 import time
 import logging
+import warnings  #ADDED
+import pyvisa.constants as pvc # ADDED
 try:
     from visa import *
-    from pyvisa import vpp43
+    #from pyvisa import vpp43  # CHANGED
 except:
     logging.warning('VISA not available')
 
-def get_navail(visains):
+def get_navail(lib, visains):
     '''
     Return number of bytes available to read from visains.
     '''
-    return vpp43.get_attribute(visains, vpp43.VI_ATTR_ASRL_AVAIL_NUM)
+    #return vpp43.get_attribute(visains, vpp43.VI_ATTR_ASRL_AVAIL_NUM)  # OLD
+    return lib.get_attribute(visains.session,pvc.VI_ATTR_ASRL_AVAIL_NUM)[0]  # NEW
 
 def wait_data(visains, nbytes=1, maxdelay=1.0):
     '''
@@ -41,8 +44,9 @@ def wait_data(visains, nbytes=1, maxdelay=1.0):
         time.sleep(0.001)
     return False
 
-def readn(visains, n):
-    return vpp43.read(visains, n)
+def readn(lib,visains, n):
+    #return vpp43.read(visains, n) # OLD
+    return lib.read(visains.session, n)  # NEW
 
 _added_filter = False
 def read_all(visains):

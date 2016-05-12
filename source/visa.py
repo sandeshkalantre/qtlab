@@ -18,6 +18,7 @@
 import logging
 import socket
 import select
+from time import time, sleep  # ADDED
 
 try:
     from pyvisa import SerialInstrument
@@ -29,17 +30,34 @@ _drivers = (
     'prologix_ethernet'
 )
 
+
+def import_non_local(name, custom_name=None):
+    """Import non-local module, use a custom name to differentiate it from local
+       This name is only used internally for identifying the module."""
+    import imp, sys
+
+    custom_name = custom_name or name
+
+    f, pathname, desc = imp.find_module(name, sys.path[1:])
+    module = imp.load_module(custom_name, f, pathname, desc)
+    f.close()
+
+    return module
+    
+
 def set_visa(name):
     if name not in _drivers:
         raise ValueError('Unknown VISA provider: %s', name)
 
     try:
         if name == "pyvisa":
-            from pyvisa import visa as module
-        else:
-            module = __import__(name)
+            #from pyvisa import visa as module    OLD
+            module = import_non_local('visa','std_visa')    # NEW
+        #else:    # OLD
+            #module = __import__(name)   # OLD
         global instrument
-        instrument = module.instrument
+        #instrument = module.instrument   OLD
+        instrument = module.ResourceManager()  # NEW
     except:
         logging.warning('Unable to load visa driver %s', name)
 
@@ -100,4 +118,7 @@ class TcpIpInstrument:
         self.clear()
         self.write(data)
         return self.read()
+        
+    def close(self):   # ADDED
+        self._socket.close()
 
