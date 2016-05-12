@@ -23,5 +23,5 @@ p.set_xrange(-11, 11)
 p.set_yrange(-0.3, 1.1)
 
 # Save figure to a file
-p.save_png(filepath='functions.png')
+p.save_png(filepath='C:\QTLab\MeasureScripts\\functions.png')
 

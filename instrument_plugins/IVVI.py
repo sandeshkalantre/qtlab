@@ -19,7 +19,9 @@
 
 from instrument import Instrument
 import types
-import pyvisa.vpp43 as vpp43
+import visa  # ADDED
+import pyvisa.constants as pvc  # ADDED
+#import pyvisa.vpp43 as vpp43
 from time import sleep
 import logging
 import numpy
@@ -39,8 +41,8 @@ class IVVI(Instrument):
     2) explain everything /rewrite init
     '''
 
-    def __init__(self, name, address, reset=False, numdacs=8,
-        polarity=['BIP', 'BIP', 'BIP', 'BIP']):
+    def __init__(self, name, interface = 'COM4', address = 'ASRL3::INSTR', reset=False, numdacs=16,   # CHANGE: Old: numdacs = 8, New: numdacs=16
+        polarity=['BIP', 'BIP', 'BIP', 'BIP']):   # ADDED 'interface'
         '''
         Initialzes the IVVI, and communicates with the wrapper
 
@@ -59,6 +61,7 @@ class IVVI(Instrument):
         Instrument.__init__(self, name, tags=['physical'])
                 
         # Set parameters
+        self._interface = interface  # ADDED
         self._address = address
         if numdacs % 4 == 0 and numdacs > 0:
             self._numdacs = int(numdacs)
@@ -82,7 +85,7 @@ class IVVI(Instrument):
             type=types.FloatType,
             flags=Instrument.FLAG_GETSET,
             channels=(1, self._numdacs),
-            maxstep=10, stepdelay=50,
+            maxstep=100, stepdelay=50,     # CHANGE: Old_first: stepdelay=50, New: stepdelay=0,  Old_second: maxstep=10, New: maxstep=2000
             units='mV', format='%.02f',
             tags=['sweep'])
         
@@ -110,30 +113,61 @@ class IVVI(Instrument):
         logging.info('Deleting IVVI instrument')
         self._close_serial_connection()
 
-    # open serial connection
+    # open serial connection     # OLD FUNCTION
+    #def _open_serial_connection(self):
+        #'''
+        #Opens the ASRL connection using vpp43
+        #baud=115200, databits=8, stop=one, parity=odd, no end char for reads
+#
+        #Input:
+        ##
+        #Output:
+         #   None
+        #'''
+        #logging.debug('Opening serial connection')
+        #self._session = vpp43.open_default_resource_manager()
+        #self._vi = vpp43.open(self._session, self._address)
+
+        #vpp43.set_attribute(self._vi, vpp43.VI_ATTR_ASRL_BAUD, 115200)
+        #vpp43.set_attribute(self._vi, vpp43.VI_ATTR_ASRL_DATA_BITS, 8)
+        #vpp43.set_attribute(self._vi, vpp43.VI_ATTR_ASRL_STOP_BITS,
+        #    vpp43.VI_ASRL_STOP_ONE)
+        #vpp43.set_attribute(self._vi, vpp43.VI_ATTR_ASRL_PARITY,
+        #    vpp43.VI_ASRL_PAR_ODD)
+        #vpp43.set_attribute(self._vi, vpp43.VI_ATTR_ASRL_END_IN,
+        #    vpp43.VI_ASRL_END_NONE)
+        
+    # open serial connection     # NEW FUNCTION 
     def _open_serial_connection(self):
         '''
         Opens the ASRL connection using vpp43
         baud=115200, databits=8, stop=one, parity=odd, no end char for reads
-
+        
         Input:
-            None
-
+    
         Output:
-            None
+            None 
         '''
-        logging.debug('Opening serial connection')
-        self._session = vpp43.open_default_resource_manager()
-        self._vi = vpp43.open(self._session, self._address)
+         
+        self._visainstruments = visa.instrument
 
-        vpp43.set_attribute(self._vi, vpp43.VI_ATTR_ASRL_BAUD, 115200)
-        vpp43.set_attribute(self._vi, vpp43.VI_ATTR_ASRL_DATA_BITS, 8)
-        vpp43.set_attribute(self._vi, vpp43.VI_ATTR_ASRL_STOP_BITS,
-            vpp43.VI_ASRL_STOP_ONE)
-        vpp43.set_attribute(self._vi, vpp43.VI_ATTR_ASRL_PARITY,
-            vpp43.VI_ASRL_PAR_ODD)
-        vpp43.set_attribute(self._vi, vpp43.VI_ATTR_ASRL_END_IN,
-            vpp43.VI_ASRL_END_NONE)
+        try:
+            self._vi = self._visainstruments.open_resource(self._interface)
+        except:
+            logging.warning('No visa instrument found')
+            raise Exception()
+            
+        self.lib = self._vi.visalib
+            
+        self._vi.set_visa_attribute(pvc.VI_ATTR_ASRL_BAUD, 115200)
+        self._vi.set_visa_attribute(pvc.VI_ATTR_ASRL_DATA_BITS, 8)
+        self._vi.set_visa_attribute(pvc.VI_ATTR_ASRL_PARITY,
+                                                    pvc.VI_ASRL_PAR_ODD)
+        self._vi.set_visa_attribute(pvc.VI_ATTR_ASRL_STOP_BITS,
+                                                    pvc.VI_ASRL_STOP_ONE)
+        self._vi.set_visa_attribute(pvc.VI_ATTR_ASRL_END_IN,
+                                                pvc.VI_ASRL_END_NONE) 
+    
 
     # close serial connection
     def _close_serial_connection(self):
@@ -147,7 +181,8 @@ class IVVI(Instrument):
             None
         '''
         logging.debug('Closing serial connection')
-        vpp43.close(self._vi)
+        # vpp43.close(self._vi)  # OLD
+        self._vi.close()
 
     def reset(self):
         '''
@@ -273,22 +308,25 @@ class IVVI(Instrument):
 
         # clear input buffer
         visafunc.read_all(self._vi)
-        vpp43.write(self._vi, message)
+        #vpp43.write(self._vi, message) # OLD
+        self.lib.write(self._vi.session, message) # NEW
 
 # In stead of blocking, we could also poll, but it's a bit slower
-#        print visafunc.get_navail(self._vi)
+#        print visafunc.get_navail(self.lib, self._vi)
 #        if not visafunc.wait_data(self._vi, 2, 0.5):
 #            logging.error('Failed to receive reply from IVVI rack')
 #            return False
 
-        data1 = visafunc.readn(self._vi, 2)
+        #data1 = visafunc.readn(self._vi, 2)  # OLD
+        data1 = visafunc.readn(self.lib, self._vi, 2)[0]  # NEW
         data1 = [ord(s) for s in data1]
 
         # 0 = no error, 32 = watchdog reset
         if data1[1] not in (0, 32):
             logging.error('Error while reading: %s', data1)
 
-        data2 = visafunc.readn(self._vi, data1[0] - 2)
+        #data2 = visafunc.readn(self._vi, data1[0] - 2)  # OLD
+        data2 = visafunc.readn(self.lib,self._vi, data1[0] - 2)[0]  # NEW
         data2 = [ord(s) for s in data2]
 
         return data1 + data2
