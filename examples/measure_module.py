@@ -123,7 +123,7 @@ def example2(f_vec, b_vec):
     qt.mstart()
 
     # this shows how to change format of saved data (per column)
-    data = qt.Data(name='4-6_IV10')
+    data = qt.Data(name='testmeasurement')
     data.add_coordinate('frequency, mw src 1 [Hz]', precision=3)
     data.add_coordinate('Bfield, ivvi dac 3 [mV]', format='%.12f')
     data.add_value('Psw SQUID', format='%.3e')

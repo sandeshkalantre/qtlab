@@ -31,7 +31,7 @@ y = np.linspace(1, 3, 10)
 X, Y = meshgrid(x, y)
 Z = np.cos(X * Y)
 
-#Plot as points
+# Plot as points
 p = plot3(ravel(X), ravel(Y), ravel(Z), 'rv',
         style='points',
         name='example_points',

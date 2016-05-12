@@ -25,7 +25,7 @@ config['allowed_ips'] = (
 config['instrument_server'] = False
 
 ## This sets a default location for data-storage
-config['datadir'] = 'K:\katsagrp\Measurement\Lada'
+#config['datadir'] = 'd:/data'
 
 ## This sets a default directory for qtlab to start in
 #config['startdir'] = 'd:/scripts'
@@ -40,7 +40,6 @@ config['exitscript'] = []       #e.g. ['closescript1.py', 'closescript2.py']
 # global namespace as functions.
 config['scriptdirs'] = [
         'examples/scripts',
-        'C:/QTLab/MeasureScripts',
 #        'd:/scripts',
 ]
 
@@ -51,8 +50,8 @@ config['scriptdirs'] = [
 
 ## For adding additional folders to the 'systm path'
 ## so python can find your modules
-import sys
-sys.path.append('C:\QTLab\MeasureScripts')
+#import sys
+#sys.path.append('d:/folder1')
 #sys.path.append('d:/folder2')
 
 # Whether to start the GUI automatically

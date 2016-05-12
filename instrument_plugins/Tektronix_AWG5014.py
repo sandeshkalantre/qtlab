@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Tektronix_AWG5014.py class, to perform the communication between the Wrapper and the device
 # Pieter de Groot <pieterdegroot@gmail.com>, 2008
 # Martijn Schaafsma <qtlab@mcschaafsma.nl>, 2008
@@ -19,8 +18,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from instrument import Instrument
-#import visa
-import Socket_Instrument  #ADDED    
+import visa
 import types
 import logging
 import numpy
@@ -62,13 +60,8 @@ class Tektronix_AWG5014(Instrument):
         Instrument.__init__(self, name, tags=['physical'])
 
 
-	self._address = address
-	self._port = 3000  #ADDED
-
-        #self._visainstrument = visa.TcpIpInstrument(self._address,self._port)  #ADDED
-        self._visainstrument = Socket_Instrument.Socket_Instrument(self._address,self._port)     # ADDED
-
-        #self._visainstrument = visa.instrument(self._address)
+        self._address = address
+        self._visainstrument = visa.instrument(self._address)
         self._values = {}
         self._values['files'] = {}
         self._clock = clock
@@ -100,12 +93,9 @@ class Tektronix_AWG5014(Instrument):
         self.add_parameter('filename', type=types.StringType,
             flags=Instrument.FLAG_SET, channels=(1, 4),
             channel_prefix='ch%d_')
-        #self.add_parameter('amplitude', type=types.FloatType,
-            #flags=Instrument.FLAG_GETSET | Instrument.FLAG_GET_AFTER_SET,
-            #channels=(1, 4), minval=0, maxval=2, units='Volts', channel_prefix='ch%d_')
-        self.add_parameter('amplitude', type=types.FloatType,                                # ADDED    
-            flags=Instrument.FLAG_GETSET,                                                   # ADDED - Instrument.FLAG_GET_AFTER_SET kicked out
-            channels=(1, 4), minval=0, maxval=4.5, units='Volts', channel_prefix='ch%d_')          #ADDED
+        self.add_parameter('amplitude', type=types.FloatType,
+            flags=Instrument.FLAG_GETSET | Instrument.FLAG_GET_AFTER_SET,
+            channels=(1, 4), minval=0, maxval=2, units='Volts', channel_prefix='ch%d_')
         self.add_parameter('offset', type=types.FloatType,
             flags=Instrument.FLAG_GETSET | Instrument.FLAG_GET_AFTER_SET,
             channels=(1, 4), minval=-2, maxval=2, units='Volts', channel_prefix='ch%d_')
@@ -130,7 +120,7 @@ class Tektronix_AWG5014(Instrument):
         self.add_function('get_all')
         self.add_function('clear_waveforms')
         self.add_function('set_trigger_mode_on')
-        #self.add_function('set_trigger_mode_off')
+        self.add_function('set_trigger_mode_off')
         self.add_function('set_trigger_impedance_1e3')
         self.add_function('set_trigger_impedance_50')
 
@@ -141,8 +131,8 @@ class Tektronix_AWG5014(Instrument):
 
         if reset:
             self.reset()
-        #else:
-            #self.get_all()
+        else:
+            self.get_all()
 
     # Functions
     def reset(self):
@@ -231,20 +221,6 @@ class Tektronix_AWG5014(Instrument):
         '''
         logging.debug(__name__ + ' : Stop/Terminate output of a waveform or sequence')
         self._visainstrument.write('AWGC:STOP:IMM')
-        
-    def force_trigger(self):   # ADDED FUNCTION    
-        '''
-        Forcing software trigger. This is equivalent to pressing
-        Force Trigger button on the front panel.
-
-        Input:
-            None
-
-        Output:
-            None
-        '''
-        logging.debug(__name__ + ' : Do force triggering')
-        self._visainstrument.write('*TRG')
 
     def do_set_output(self, state, channel):
         '''
@@ -373,48 +349,6 @@ class Tektronix_AWG5014(Instrument):
         '''
         logging.debug(__name__ + ' : Load waveform file %s%s%s for channel %s' % (drive, path, filename, channel))
         self._visainstrument.write('SOUR%s:FUNC:USER "%s/%s","%s"' % (channel, path, filename, drive))
-        
-        
-    def import_waveform(self, filename, waveform_name):  # ADDED FUNCTION 
-        '''
-        This command imports a file from AWG hard drive memory into the AWG waveform list as a waveform.
-        
-        Input:
-            filename (str) : the waveform filename with path (e.g. 'Z:\waveforms\wave.wfm')
-            waveform_name (str) : the waveform name in the AWG waveform list
-
-        Output:
-            None
-        '''
-        self._visainstrument.write('*OPC?') #Wait until previous command is executed
-        self._visainstrument.write('MMEMORY:IMPORT "%s","%s", wfm' % (waveform_name, filename))
-        
-        
-    def import_waveform_object(self, Wav = None, path = 'C:\SEQwav\\'):  # ADDED FUNCTION  
-        
-        '''
-        This command imports a file from AWG hard drive memory into the AWG waveform list as a waveform.
-
-        Input:
-            Wav (Waveform type) :  Waveform object
-            path (string)          : Place on the AWG disk where waveform is located (e.g. 'C:\SEQwav\ ')
-
-        Output:
-            None
-        '''
-        
-        if Wav is None:
-            raise Exception('Error: You havent passed Waveform object to "import_waveform_object" function')
-     
-            
-        filename = path + Wav.waveform_name + '.wfm'  # Changed 
-        waveform_name = Wav.waveform_name            # Changed
-        self._visainstrument.write('*OPC?') #Wait until previous command is executed
-        self._visainstrument.write('MMEMORY:IMPORT "%s","%s", wfm' % (waveform_name, filename))
-        
-        
-        
-    
 
     def _add_load_waveform_func(self, channel):
         '''
@@ -785,7 +719,6 @@ class Tektronix_AWG5014(Instrument):
         '''
         logging.debug(__name__ + ' : Get amplitude of channel %s from instrument'
             % channel)
-        self._visainstrument.write('*OPC?') #Wait until previous command is executed      # ADDED
         return float(self._visainstrument.ask('SOUR%s:VOLT:LEV:IMM:AMPL?' % channel))
 
     def do_set_amplitude(self, amp, channel):
@@ -799,10 +732,8 @@ class Tektronix_AWG5014(Instrument):
         Output:
             None
         '''
-        
         logging.debug(__name__ + ' : Set amplitude of channel %s to %.6f'
             % (channel, amp))
-        self._visainstrument.write('*OPC?') #Wait until previous command is executed      # ADDED
         self._visainstrument.write('SOUR%s:VOLT:LEV:IMM:AMPL %.6f' % (channel, amp))
 
     def do_get_offset(self, channel):
@@ -1036,67 +967,7 @@ class Tektronix_AWG5014(Instrument):
 
         mes = s1 + s2 + s3 + s4 + s5 + s6
 
-        self._visainstrument.write('*OPC?') #Wait until previous command is executed      # ADDED
         self._visainstrument.write(mes)
-        
-        
-    # Send waveform object to the device
-    def send_waveform_object(self,Wav = None, path = 'C:\SEQwav\\'):    # ADDED FUNCTION  (TO TEST)
-        
-        '''
-        Sends a complete waveform. All parameters need to be specified.
-
-        Input:
-            Wav (Waveform type) : Waveform object
-            path (string)          : Place on the AWG disk to save waveform (e.g. 'C:\SEQwav\ ')
-
-        Output:
-            None
-        '''
-        
-        if Wav is None:
-            raise Exception('Error: You havent passed Waveform object to "send_waveform_object" function')
-    
-            
-        w = Wav.waveform   #   Changed  
-        m1 = Wav.marker1   #   Changed
-        m2 = Wav.marker2   #   Changed name
-        filename = path + Wav.waveform_name + '.wfm'
-        clock = int(self.do_get_clock())   
-        
-        logging.debug(__name__ + ' : Sending waveform %s to instrument' % filename)
-        # Check for errors
-        dim = len(w)
-
-        if (not((len(w)==len(m1)) and ((len(m1)==len(m2))))):
-            return 'error'
-
-        self._values['files'][filename]={}
-        self._values['files'][filename]['w']=w
-        self._values['files'][filename]['m1']=m1
-        self._values['files'][filename]['m2']=m2
-        self._values['files'][filename]['clock']=clock
-        self._values['files'][filename]['numpoints']=len(w)
-
-        m = m1 + numpy.multiply(m2,2)
-        ws = ''
-        for i in range(0,len(w)):
-            ws = ws + struct.pack('<fB', w[i], int(m[i]))
-
-        s1 = 'MMEM:DATA "%s",' % filename
-        s3 = 'MAGIC 1000\n'
-        s5 = ws
-        s6 = 'CLOCK %.10e\n' % clock
-
-        s4 = '#' + str(len(str(len(s5)))) + str(len(s5))
-        lenlen=str(len(str(len(s6) + len(s5) + len(s4) + len(s3))))
-        s2 = '#' + lenlen + str(len(s6) + len(s5) + len(s4) + len(s3))
-
-        mes = s1 + s2 + s3 + s4 + s5 + s6
-    
-        self._visainstrument.write('*OPC?') #Wait until previous command is executed
-        self._visainstrument.write(mes)
-        
 
     def resend_waveform(self, channel, w=[], m1=[], m2=[], clock=[]):
         '''
@@ -1133,70 +1004,4 @@ class Tektronix_AWG5014(Instrument):
 
         self.send_waveform(w,m1,m2,filename,clock)
         self.do_set_filename(filename, channel)
-        
-        
-## SEQUENCE COMMANDS
-
-    def load_seq_elem(self, elem, channel, waveform_name, TWAIT = 0, INF = 0, GOTOind = None):    # ADDED FUNCTION (TO TEST)
-       
-        '''
-        This command sets the waveform for the specified sequence element on the specified channel. Also parameters such as 
-        waiting for trigger (TWAIT), infinite loop (INF) and GOTO index (GOTOind) are set for this one element channel.
-       
-        
-        Input:
-            elem (int) : the element number of the waveform
-            channel (int) : AWG channel
-            waveform_name (str) : the waveform name in channel waveform memory
-            TWAIT (boolean) : determines to wait for trigger or not before elemen execution
-            INF (boolean) : determines to infinitely execute or not this element
-            GOTOind (int) : determines which element is next after execution of this one            
-            
-        Output:
-            None
-        '''
-        
-        self._visainstrument.write('*OPC?') #Wait until previous command is executed
-        
-        #Set the element in sequence
-        self._visainstrument.write('SEQUENCE:ELEMENT%d:WAVEFORM%d "%s"' %(elem,channel,waveform_name))
-        
-        #Wait for trigger on this element (ON/OFF)
-        if TWAIT: # If TWAIT is set - set wait for trigger on this element       # ADDED 21.03.2016  10:30
-            self._visainstrument.write('SEQUENCE:ELEMENT%d:TWAIT %d' %(elem,1))
-        
-        #Infinite loop of this element (ON/OFF)
-        self._visainstrument.write('SEQUENCE:ELEMENT%d:LOOP:INFINITE %d' %(elem, INF))
-        
-        if GOTOind is not None:  # If we want to specify GOTOind    
-        
-            #For the SEQuence:ELEMent[n]:GOTO:INDex command to take effect, the GOTO state must be set to ON        
-            self._visainstrument.write('SEQUENCE:ELEMENT%d:GOTO:STATE 1' %elem)
-        
-            #Index of next element for execution 
-            self._visainstrument.write('SEQUENCE:ELEMENT%d:GOTO:INDEX %d' %(elem, GOTOind))
-        
-    
-    def set_seq_length(self,length):   # ADDED FUNCTION (TO TEST)
-        
-        '''
-        This command sets the sequence length. Use this command
-        to create an uninitialized sequence. You can also use the command to clear all
-        sequence elements in a single action by passing 0 as the parameter. However, this
-        action cannot be undone so exercise necessary caution. Also note that passing a
-        value less than the sequence’s current length will cause some sequence elements
-        to be deleted at the end of the sequence. For example if current sequence length is
-        200 and you subsequently send 21, all sequence elements except the first 20 will be deleted.
-        
-        
-        Input:
-            length (int) : number of sequence elements
-                       
-            
-        Output:
-            None
-        '''
-        
-        #Setting sequence length
-        self._visainstrument.write('SEQUENCE:LENGTH %d' %length)
 
