@@ -19,7 +19,7 @@ gain = 1e6 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for
 bias = 500
 # you define two vectors of what you want to sweep. In this case
 # a magnetic field (b_vec) and a frequency (f_vec)
-v_vec = arange(-500,500,5)
+v_vec = arange(-500,500,1)
 
 
 # you indicate that a measurement is about to start and other
@@ -33,7 +33,7 @@ qt.mstart()
 # and will be called:
 # <timestamp>_testmeasurement.dat
 # to find out what 'datadir' is set to, type: qt.config.get('datadir')
-data = qt.Data(name='testmeasurement', ts=None, datesubdir=False, timesubdir=False)
+data = qt.Data(name='testmeasurement')
 
 
 # Now you provide the information of what data will be saved in the
@@ -81,7 +81,7 @@ for v in v_vec:
     # if the plots need updating.
     qt.msleep(0.001)
 stop = time()
-print 'Trajanje: %s sec' % (stop - start, )
+print 'Duration: %s sec' % (stop - start, )
 
    
 

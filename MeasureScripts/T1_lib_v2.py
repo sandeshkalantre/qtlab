@@ -1,4 +1,6 @@
 # 04.05.2016. Added lines 82 to 89 - Uploading sequence to specified channel recognition
+# This script need to be separated in AWG and Lockin part. Additionally Lockin part needs to be rearanged 
+#   in terms how the data is acquired
 
 import Tektronix_AWG5014 as ArbWG
 import InverseHPfilterSeq as INV   # ADDED
@@ -15,8 +17,8 @@ import zhinst.ziPython as ziPython
 
 
 
-if 'AWG' in locals():
-    AWG._ins._visainstrument.close()   # Trying to close previous AWG session. 
+#if 'AWG' in locals():
+#    AWG._ins._visainstrument.close()   # Trying to close previous AWG session. 
 
        
 #AWG = qt.instruments.create('AWG', 'Tektronix_AWG5014', address='169.254.111.236')  # Changed
@@ -219,7 +221,7 @@ def UHF_measure(device_id = 'dev2148', maxtime = 5):
 
     Returns:
 
-      shotCH1,shotCH2 (np.array)  -  vectors of data read out on channels CH1 and CH2
+      shotCH1,shotCH2 (np.array)  -  vectors of data read out on scope channels CH1 and CH2
 
     Raises:
 
@@ -329,4 +331,84 @@ def UHF_measure(device_id = 'dev2148', maxtime = 5):
     
             
 
+def UHF_measure_demod(demod_c = 0, out_c = 0):
 
+    """
+    Obtaining data from UHF LI demodulator using ziDAQServer's blocking (synchronous) poll() command
+    Acessing to UHF LI is done by global variable daq and device defined in UHF_init function
+
+   
+
+    Arguments:
+
+      demod_c (int): One of {0 - 7} demodulators of UHF LI 
+      out_c (int): One of {0,1} output channels of UHF LI
+
+    Returns:
+
+      measured_ac_resistance (float): Division between acqired samples mean value (assumed as current) and output voltage RMS value.
+        It is meant ot be ac resistance of the sample. Needs to be corrected with appropriate constant in user script. 
+
+    Raises:
+
+      RuntimeError: If the device is not connected to the Data Server.
+    """
+
+    
+    # Poll data parameters
+    poll_length = 0.01  # [s]
+    poll_timeout = 500  # [ms]
+    poll_flags = 0
+    poll_return_flat_dict = True
+    
+    daq.setInt('/%s/demods/%s/enable' % (device, demod_c) , 1)  # Enable demodulator 1
+    
+    #START MEASURE
+    # Unsubscribe any streaming data
+    daq.unsubscribe('*')
+
+
+
+    # Wait for the demodulator filter to settle
+    #time.sleep(3*time_constant)
+
+    # Perform a global synchronisation between the device and the data server:
+    # Ensure that 1. the settings have taken effect on the device before issuing
+    # the poll() command and 2. clear the API's data buffers. Note: the sync()
+    # must be issued after waiting for the demodulator filter to settle above.
+    daq.sync()
+
+    # Subscribe to the demodulator's sample
+    path = '/%s/demods/%d/sample' % (device, demod_c)
+    daq.subscribe(path)
+
+    data = daq.poll(poll_length, poll_timeout, poll_flags, poll_return_flat_dict)  # Readout from subscribed node (demodulator)
+    
+    #END OF MEASURE
+
+  
+            
+    # Unsubscribe from all paths
+    daq.unsubscribe('*')
+    
+    # Disable demodulator
+    daq.setInt('/%s/demods/%s/enable' % (device, demod_c) , 0)
+    
+
+    # Check the dictionary returned is non-empty
+    assert data, "poll() returned an empty data dictionary, did you subscribe to any paths?"
+    # Note, the data could be empty if no data arrived, e.g., if the demods were
+    # disabled or had demodulator rate 0
+    assert path in data, "data dictionary has no key '%s'" % path
+    # The data returned is a dictionary of dictionaries that reflects the node's path
+
+
+    # The data returned is a dictionary of dictionaries that reflects the node's path
+    sample = data[path]
+    sample['R'] = np.sqrt(sample['x']**2 + sample['y']**2) # Calculating R value from X and y values
+    
+    out_ampl = daq.getDouble('/%s/sigouts/%s/amplitudes/3' % (device, out_c))/np.sqrt(2)
+    sample_mean = np.mean(sample['R'])  # Mean value of recorded data vector
+    measured_ac_resistance = out_ampl/sample_mean
+  
+    return measured_ac_resistance 

@@ -31,16 +31,16 @@ p1 = Wav.Waveform(waveform_name = 'WAV5', AWG_clock = AWG_clock, TimeUnits = 'ms
                                                                                                           # Important is to define TimeUnits and AmpUnits    
 p1.setValuesCH2([10,1000], [5, 0], [5, 0]) # Setting waveform shape for waveform object p1 for AWG channel 1 - [Time1,Amp1],[Time2,Amp2]...  Time in TimeUnits and Amp in AmpUnits
 p1.setMArkersCH2([0,1,0],[0,1,0]) # Setting markers values (M1 and M2) for waveform object p1 for AWG channel 1  - Markers are repeated every period
-p1.setValuesCH4([10,1000], [5, 500], [5, 0]) 
-p1.setMArkersCH4([1,0,0],[1,0,0])
+#p1.setValuesCH4([10,1000], [5, 500], [5, 0]) 
+#p1.setMArkersCH4([1,0,0],[1,0,0])
 
 
 p2 = Wav.Waveform(waveform_name = 'WAV2', AWG_clock = AWG_clock, TimeUnits = 'ms' , AmpUnits = 'mV')  # Generating waveform object p2
     
-p2.setValuesCH2([10,1000], [5, 0], [5, 0])  # Setting waveform shape for waveform object p2 for AWG channel 1 - [Time1,Amp1],[Time2,Amp2]...  Time in TimeUnits and Amp in AmpUnits       
+p2.setValuesCH2([10,500], [5, 0], [5, 0])  # Setting waveform shape for waveform object p2 for AWG channel 1 - [Time1,Amp1],[Time2,Amp2]...  Time in TimeUnits and Amp in AmpUnits       
 p2.setMArkersCH2([0,1,0],[0,1,0]) # Setting markers values (M1 and M2) for waveform object p2 for AWG channel 1 - Markers are repeated every period
-p2.setValuesCH4([10,1000], [5, 500], [5, 0]) 
-p2.setMArkersCH4([1,0,0],[1,0,0])
+#p2.setValuesCH4([10,1000], [5, 500], [5, 0]) 
+#p2.setMArkersCH4([1,0,0],[1,0,0])
 
 seq = p1.interpolate_to(Seq_length,p2)   # Creating sequence by interpolation between wavefrom p1 and p2 in Seq_length number of steps
 
