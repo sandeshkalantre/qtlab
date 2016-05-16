@@ -1,5 +1,3 @@
-import Tektronix_AWG5014 as ArbWG
-import InverseHPfilterSeq as INV   # ADDED
 import matplotlib.pyplot as plt
 import qt
 import re
@@ -13,122 +11,30 @@ import zhinst.ziPython as ziPython
 
 
 
-if 'AWG' in locals():
-    AWG._ins._visainstrument.close()   # Trying to close previous AWG session. 
 
-       
-AWG = qt.instruments.create('AWG', 'Tektronix_AWG5014', address='169.254.111.236')
-
-
-
-def set_waveform(seq,AWG_clock,AWGMax_amp,Seq_length):
-    
-   
-    AWG.set_ch1_amplitude(AWGMax_amp)  # Setting maximum needed amp on all channels
-    AWG.set_ch2_amplitude(AWGMax_amp) 
-    AWG.set_ch3_amplitude(AWGMax_amp) 
-    AWG.set_ch4_amplitude(AWGMax_amp) 
-   
-        
-    AWG.del_waveform_all()  # Clear all waveforms in waveform list
-    AWG.set_clock(AWG_clock)  # Set AWG clock
-
-
-    ## Making HP inverse on CH1      # ADDED
-    #CompleteSeqWav = np.array([])
-    #for index, elem in enumerate(seq[0]):    # Creating single array with all sequence wavefroms concatenated
-     #   CompleteSeqWav = np.concatenate((CompleteSeqWav,np.array(elem.waveform)))
-        
-    #CompleteSeqWavInv = INV.InverseHPfilterSeq(CompleteSeqWav, R = 2E7, C = 1E-9)   # Making HP inverse on concatenated wavefroms
-   # 
-  # 
-    #print(len(CompleteSeqWav), len(CompleteSeqWavInv))
-    #
-    #stop = 0 
-    #for index, elem in enumerate(seq[0]):  # Slicing HP inverted concatenated wavefroms back into sequnce elements
-    #    start = stop 
-    #    stop = start + len(elem.waveform)
-    #    elem.waveform = CompleteSeqWavInv[start:stop]
-    
-    #plt.figure("WAVEFORM_INVERTED")
-    #plt.plot(seq[0][2].waveform)
-    #plt.show()
-    
-    #print("Lch1",len(seq[0][2].waveform),"Lch2",len(seq[1][2].waveform))
-    
-    
-    
-    ## UPLOAD Sequence to AWG hard
-    for ch_num in xrange(len(seq)):
-        for seq_elem in seq[ch_num]:
-            seq_elem.rescaleAmplitude(AWGMax_amp)
-            AWG.send_waveform_object(Wav = seq_elem, path = 'C:\SEQwav\\')
-            AWG.import_waveform_object(Wav = seq_elem, path = 'C:\SEQwav\\')
-            
-            
-    
-    ## SET AWG
-    AWG.set_sequence_mode_on()  # Tell the device to run in sequence mode (run_mode_sequence)
-    AWG.set_seq_length(0)   # Clear all elements of existing sequence   
-    AWG.set_seq_length(Seq_length)  # Set wanted sequence length
-    
-    
-    # Create the sequence from previously uploaded files for wanted channels 
-    
-    for ch_num in xrange(len(seq)):   # Iterating trough channels
-        for elem_num, seq_elem in enumerate(seq[ch_num]):   # Iterating trough sequence elements
-            
-            #if elem_num == 0: # If it is the FIRST element set TWAIT = 1 - wait for trigger
-                #AWG.load_seq_elem(elem_num+1,ch_num+1, seq_elem.waveform_name, TWAIT = 1)
-                
-            if elem_num == (len(seq[ch_num])-1): # If it is the last element set GOTOind=1 - return to first elem
-                AWG.load_seq_elem(elem_num+1,ch_num+1, seq_elem.waveform_name, GOTOind=1)
-                
-            else:
-                AWG.load_seq_elem(elem_num+1,ch_num+1, seq_elem.waveform_name)
-                
-               
-                           
-    #Turn on the AWG channels
-    AWG._ins.do_set_output(1,1)
-    AWG._ins.do_set_output(1,2)
-    #AWG._ins.do_set_output(1,3)
-    #AWG._ins.do_set_output(1,4)
-    
-    
-    
-    #Run
-    AWG.run()
-     
-    
-    
-    
-def UHF_measure(device_id = 'dev2148', maxtime = 5):
+def UHF_init(device_id = 'dev2148'):
     
     """
-    Connecting to the device specified by device_id and obtaining
-    demodulator data using ziDAQServer's blocking (synchronous) poll() command
+    Connecting to the device specified by device_id and setting initial parameters
+    
 
-   
 
     Arguments:
         
 
       device_id (str): The ID of the device to run the example with. For
-        example, `dev2006` or `uhf-dev2006`.
+        example, 'dev2148'.
 
-      maxtime (int): Maximum measurement time in seconds - after this 
-        period expires measurement is stopped and data collected until that
-        point is returned
 
-    Returns:
-
-      shotCH1,shotCH2 (np.array)  -  vectors of data read out on channels CH1 and CH2
 
     Raises:
 
       RuntimeError: If the device is not connected to the Data Server.
     """
+
+    global daq  # Creating global variable for accesing the UHFLI from other functions
+    global device # Creating global variable for accesing the UHFLI from other functions 
+
     # Create an instance of the ziDiscovery class.
     d = ziPython.ziDiscovery()
 
@@ -180,6 +86,40 @@ def UHF_measure(device_id = 'dev2148', maxtime = 5):
     raw_input("Set the UHF LI parameters in user interface dialog!  Press enter to continue...")  # Wait for user to set the device parametrs from user interface
 
     
+
+
+
+
+
+
+
+def UHF_measure(device_id = 'dev2148', maxtime = 5):
+
+    """
+    Obtaining data from UHF LI using ziDAQServer's blocking (synchronous) poll() command
+    Acessing to UHF LI is done by global variable daq and device defined in UHF_init function
+
+   
+
+    Arguments:
+        
+
+      device_id (str): The ID of the device to run the example with. For
+        example, 'dev2148'.
+
+      maxtime (int): Maximum measurement time in seconds - after this 
+        period expires measurement is stopped and data collected until that
+        point is returned
+
+    Returns:
+
+      shotCH1,shotCH2 (np.array)  -  vectors of data read out on scope channels CH1 and CH2
+
+    Raises:
+
+      RuntimeError: If the device is not connected to the Data Server.
+    """
+
     data = list()
     
     # Poll data parameters
@@ -198,7 +138,7 @@ def UHF_measure(device_id = 'dev2148', maxtime = 5):
     daq.sync()
     daq.subscribe(path)
 
-    AWG.force_trigger() # This trigger also triggers lockin aquisition/BNC cable
+    #AWG.force_trigger() # This trigger also triggers lockin aquisition/BNC cable  # CHANGED
     
     start = time.time()  # Starting time counter
     while True:  # Readout data block by block until whole buffer is read out
@@ -282,5 +222,87 @@ def UHF_measure(device_id = 'dev2148', maxtime = 5):
 
     
             
+
+def UHF_measure_demod(demod_c = 0, out_c = 0):
+
+    """
+    Obtaining data from UHF LI demodulator using ziDAQServer's blocking (synchronous) poll() command
+    Acessing to UHF LI is done by global variable daq and device defined in UHF_init function
+
+   
+
+    Arguments:
+
+      demod_c (int): One of {0 - 7} demodulators of UHF LI 
+      out_c (int): One of {0,1} output channels of UHF LI
+
+    Returns:
+
+      measured_ac_resistance (float): Division between acqired samples mean value (assumed as current) and output voltage RMS value.
+        It is meant ot be ac resistance of the sample. Needs to be corrected with appropriate constant in user script. 
+
+    Raises:
+
+      RuntimeError: If the device is not connected to the Data Server.
+    """
+
+    
+    # Poll data parameters
+    poll_length = 0.01  # [s]
+    poll_timeout = 500  # [ms]
+    poll_flags = 0
+    poll_return_flat_dict = True
+    
+    daq.setInt('/%s/demods/%s/enable' % (device, demod_c) , 1)  # Enable demodulator 1
+    
+    #START MEASURE
+    # Unsubscribe any streaming data
+    daq.unsubscribe('*')
+
+
+
+    # Wait for the demodulator filter to settle
+    # time.sleep(3*time_constant)
+
+    # Perform a global synchronisation between the device and the data server:
+    # Ensure that 1. the settings have taken effect on the device before issuing
+    # the poll() command and 2. clear the API's data buffers. Note: the sync()
+    # must be issued after waiting for the demodulator filter to settle above.
+    daq.sync()
+
+    # Subscribe to the demodulator's sample
+    path = '/%s/demods/%d/sample' % (device, demod_c)
+    daq.subscribe(path)
+
+    data = daq.poll(poll_length, poll_timeout, poll_flags, poll_return_flat_dict)  # Readout from subscribed node (demodulator)
+    
+    #END OF MEASURE
+
+  
+            
+    # Unsubscribe from all paths
+    daq.unsubscribe('*')
+    
+    # Disable demodulator
+    daq.setInt('/%s/demods/%s/enable' % (device, demod_c) , 0)
+    
+
+    # Check the dictionary returned is non-empty
+    assert data, "poll() returned an empty data dictionary, did you subscribe to any paths?"
+    # Note, the data could be empty if no data arrived, e.g., if the demods were
+    # disabled or had demodulator rate 0
+    assert path in data, "data dictionary has no key '%s'" % path
+    # The data returned is a dictionary of dictionaries that reflects the node's path
+
+
+    # The data returned is a dictionary of dictionaries that reflects the node's path
+    sample = data[path]
+    sample['R'] = np.sqrt(sample['x']**2 + sample['y']**2) # Calculating R value from X and y values
+    
+    out_ampl = daq.getDouble('/%s/sigouts/%s/amplitudes/3' % (device, out_c))/np.sqrt(2)
+    sample_mean = np.mean(sample['R'])  # Mean value of recorded data vector
+    measured_ac_resistance = out_ampl/sample_mean
+  
+    return measured_ac_resistance 
 
 

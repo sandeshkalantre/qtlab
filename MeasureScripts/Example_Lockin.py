@@ -1,6 +1,6 @@
 from numpy import pi, random, arange, size
 from time import time,sleep
-import T1_lib_v2 as T1_lib
+import AWG_lib
 
 #####################################################
 # this part is to simulate some data, you can skip it
@@ -20,7 +20,7 @@ gain = 1e6 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for
 
 
 # Sweeping vectors
-v_vec = arange(-500,500,1)
+v_vec = arange(-500,500,2)
 
 
 # you indicate that a measurement is about to start and other

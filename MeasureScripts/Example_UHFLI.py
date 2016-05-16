@@ -1,6 +1,6 @@
 from numpy import pi, random, arange, size
 from time import time,sleep
-import T1_lib_v2 as T1_lib
+import AWG_lib
 
 
 #####################################################

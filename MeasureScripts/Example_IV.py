@@ -19,7 +19,7 @@ gain = 1e6 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for
 bias = 500
 # you define two vectors of what you want to sweep. In this case
 # a magnetic field (b_vec) and a frequency (f_vec)
-v_vec = arange(-500,500,1)
+v_vec = arange(0,-500,-2)
 
 
 # you indicate that a measurement is about to start and other
@@ -62,12 +62,12 @@ plot2d.set_style('lines')
 
 
 # preparation is done, now start the measurement.
-#IVVI.set_dac1(bias)
+IVVI.set_dac1(bias)
 # It is actually a simple loop.
 start = time()
 for v in v_vec:
     # set the voltage
-    IVVI.set_dac1(v)
+    IVVI.set_dac3(v)
 
     # readout
     result = dmm.get_readval()/gain*1e12

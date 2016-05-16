@@ -1,5 +1,5 @@
-import T1_lib_v2 as T1_lib
-reload(T1_lib)
+import AWG_lib
+reload(AWG_lib)
 import Waveform_PresetAmp as Wav
 import numpy as np
 #import qt
