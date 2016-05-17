@@ -1,22 +1,22 @@
 from numpy import pi, random, arange, size
 from time import time,sleep
-import UHFLI_lib
-
+import datetime
 
 
 
 #####################################################
 # here is where the actual measurement program starts
 #####################################################
-IVVI = qt.instruments.create('DAC','IVVI',interface = 'COM4', polarity=['BIP', 'BIP', 'BIP', 'BIP'], numdacs=16)  # Initialize IVVI
-dmm = qt.instruments.create('dmm','a34410a', address = 'USB0::0x0957::0x0607::MY53003401::INSTR')   # Initialize dmm
+IVVI = qt.instruments.create('DAC','IVVI',interface = 'COM4') # Initialize IVVI
 UHFLI_lib.UHF_init_demod()  # Initialize UHF LI
 
-gain = 1e6 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for 1G
+gain = 10e6 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for 1G
 
+# you define two vectors of what you want to sweep. In this case
+# a magnetic field (b_vec) and a frequency (f_vec)
+v1_vec = arange(22,400,1)
+v2_vec = arange(-500,500,50)
 
-# Sweeping vectors
-v_vec = arange(-500,500,2)
 
 
 # you indicate that a measurement is about to start and other
@@ -32,7 +32,6 @@ qt.mstart()
 # to find out what 'datadir' is set to, type: qt.config.get('datadir')
 data = qt.Data(name='testmeasurement')
 
-
 # Now you provide the information of what data will be saved in the
 # datafile. A distinction is made between 'coordinates', and 'values'.
 # Coordinates are the parameters that you sweep, values are the
@@ -40,9 +39,9 @@ data = qt.Data(name='testmeasurement')
 # information is used later for plotting purposes.
 # Adding coordinate and value info is optional, but recommended.
 # If you don't supply it, the data class will guess your data format.
-data.add_coordinate('Voltage [mV]')   
-
-data.add_value('Resistance [ohms]')
+data.add_coordinate('Voltage1 [mV]')
+data.add_coordinate('Voltage2 [mV]')
+data.add_value('AC_Conductance ')
 
 # The next command will actually create the dirs and files, based
 # on the information provided above. Additionally a settingsfile
@@ -54,34 +53,49 @@ data.create_file()
 # measurement a 'name' can be provided so that window can be reused.
 # If the 'name' doesn't already exists, a new window with that name
 # will be created. For 3d plots, a plotting style is set.
-plot2d_lockin = qt.Plot2D(data, name='lockin', autoupdate=False)
-plot2d_lockin.set_style('points')
+plot2d = qt.Plot2D(data, name='measure2D',autoupdate=False)
+plot3d = qt.Plot3D(data, name='measure3D', coorddims=(0,1), valdim=2, style='image')
 
 
 
 # preparation is done, now start the measurement.
-#IVVI.set_dac1(bias)
 # It is actually a simple loop.
-start = time()
-for v in v_vec:
-    # set the voltage
-    IVVI.set_dac1(v)
 
-    # readout
-    result_lockin = UHFLI_lib.UHF_measure_demod()/gain  # Reading the lockin and correcting for M1b gain
+init_start = time()
+vec_count = 0
+for v1 in v1_vec:
+    
+    start = time()
+    # set the voltage 
+    IVVI.set_dac3(v1)
 
-    # save the data point to the file
-    data.add_data_point(v, result_lockin)  
+    for v2 in v2_vec:
+        
+        # set the voltage
+        IVVI.set_dac1(v2)
 
-    plot2d_lockin.update()
+        # readout
+        result = UHFLI_lib.UHF_measure_demod()/gain  # Reading the lockin and correcting for M1b gain
+    
+        # save the data point to the file, this will automatically trigger
+        # the plot windows to update
+        data.add_data_point(v2,v1, result)
+        # the next function is necessary to keep the gui responsive. It
+        # checks for instance if the 'stop' button is pushed. It also checks
+        # if the plots need updating.
+        qt.msleep(0.001)
+    data.new_block()
+    stop = time()
+    
 
-    # the next function is necessary to keep the gui responsive. It
-    # checks for instance if the 'stop' button is pushed. It also checks
-    # if the plots need updating.
-    qt.msleep(0.001)
-stop = time()
-print 'Duration: %s sec' % (stop - start, )
+    plot2d.update()
 
+    vec_count = vec_count + 1
+    print 'Estimated time left: %s hours\n' % str(datetime.timedelta(seconds=int((stop - start)*(v1_vec.size - vec_count))))
+    
+    
+
+print 'Overall duration: %s sec' % (stop - init_start, )
 
    
 

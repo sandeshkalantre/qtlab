@@ -353,8 +353,8 @@ def UHF_measure_demod(demod_c = 0, out_c = 0):
 
     Returns:
 
-      measured_ac_resistance (float): Division between acqired samples mean value (assumed as current) and output voltage RMS value.
-        It is meant ot be ac resistance of the sample. Needs to be corrected with appropriate constant in user script. 
+      measured_ac_conductance (float): Division between output voltage RMS value and acqired samples mean value (assumed as current).
+        Needs to be corrected with appropriate constant in user script. 
 
     Raises:
 
@@ -396,8 +396,8 @@ def UHF_measure_demod(demod_c = 0, out_c = 0):
     
     
     sample_mean = np.mean(sample_r)  # Mean value of recorded data vector
-    measured_ac_resistance = out_ampl/sample_mean
+    measured_ac_conductance = out_ampl/sample_mean
   
-    return measured_ac_resistance 
+    return measured_ac_conductance 
 
 
