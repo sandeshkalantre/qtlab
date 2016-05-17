@@ -12,10 +12,10 @@ import zhinst.ziPython as ziPython
 
 
 
-def UHF_init(device_id = 'dev2148'):
+def UHF_init_scope(device_id = 'dev2148'):
     
     """
-    Connecting to the device specified by device_id and setting initial parameters
+    Connecting to the device specified by device_id and setting initial parameters 
     
 
 
@@ -93,7 +93,7 @@ def UHF_init(device_id = 'dev2148'):
 
 
 
-def UHF_measure(device_id = 'dev2148', maxtime = 5):
+def UHF_measure_scope(device_id = 'dev2148', maxtime = 5):
 
     """
     Obtaining data from UHF LI using ziDAQServer's blocking (synchronous) poll() command
@@ -218,6 +218,121 @@ def UHF_measure(device_id = 'dev2148', maxtime = 5):
     #AWG._visainstrument.close()   # Closing the session towards instrument
 
     return shotCH1,shotCH2   # Returning data vectors for both channels
+
+
+
+def UHF_init_demod(device_id = 'dev2148', demod_c = 0, out_c = 0):
+    
+    """
+    Connecting to the device specified by device_id and setting initial parameters
+    
+
+
+    Arguments:
+        
+
+      device_id (str): The ID of the device to run the example with. For
+        example, 'dev2148'.
+
+
+
+    Raises:
+
+      RuntimeError: If the device is not connected to the Data Server.
+    """
+
+    global daq  # Creating global variable for accesing the UHFLI from other functions
+    global device # Creating global variable for accesing the UHFLI from other functions 
+
+    # Create an instance of the ziDiscovery class.
+    d = ziPython.ziDiscovery()
+
+    # Determine the device identifier from it's ID.
+    device = d.find(device_id).lower()
+
+    # Get the device's default connectivity properties.
+    props = d.get(device)
+
+    # The maximum API level supported by this example.
+    apilevel_example = 5
+    # The maximum API level supported by the device class, e.g., MF.
+    apilevel_device = props['apilevel']
+    # Ensure we run the example using a supported API level.
+    apilevel = min(apilevel_device, apilevel_example)
+    # See the LabOne Programming Manual for an explanation of API levels.
+
+    # Create a connection to a Zurich Instruments Data Server (an API session)
+    # using the device's default connectivity properties.
+    daq = ziPython.ziDAQServer(props['serveraddress'], props['serverport'], apilevel)
+
+    # Check that the device is visible to the Data Server
+    if device not in utils.devices(daq):
+        raise RuntimeError("The specified device `%s` is not visible to the Data Server, " % device_id +
+                           "please ensure the device is connected by using the LabOne User Interface " +
+                           "or ziControl (HF2 Instruments).")
+
+    # find out whether the device is an HF2 or a UHF
+    devtype = daq.getByte('/%s/features/devtype' % device)
+    options = daq.getByte('/%s/features/options' % device)
+
+    
+ 
+
+    # Create a base configuration: disable all outputs, demods and scopes
+    general_setting = [
+        ['/%s/demods/*/rate' % device, 0],
+        ['/%s/demods/*/trigger' % device, 0],
+        ['/%s/sigouts/*/enables/*' % device, 0]]
+    if re.match('HF2', devtype):
+        general_setting.append(['/%s/scopes/*/trigchannel' % device, -1])
+    else:  # UHFLI
+        pass
+        #general_setting.append(['/%s/demods/*/enable' % device, 0])
+        #general_setting.append(['/%s/scopes/*/enable' % device, 0])
+    daq.set(general_setting)
+    
+    
+    raw_input("Set the UHF LI parameters in user interface dialog!  Press enter to continue...")  # Wait for user to set the device parametrs from user interface
+
+   
+    daq.setInt('/%s/demods/%s/enable' % (device, demod_c) , 1)  # Enable demodulator 1
+
+    daq.setInt('/%s/demods/%s/rate' % (device, demod_c), 1000000) # Set the demodulator sampling rate
+    
+    
+    # Unsubscribe any streaming data
+    daq.unsubscribe('*')
+
+
+
+    # Path to UHF LI readout node made globally for using in other functions
+    global path_demod
+    path_demod = '/%s/demods/%d/sample' % (device, demod_c) 
+
+
+    # Perform a global synchronisation between the device and the data server:
+    # Ensure that 1. the settings have taken effect on the device before issuing
+    # the poll() command and 2. clear the API's data buffers. Note: the sync()
+    # must be issued after waiting for the demodulator filter to settle above.
+    daq.sync()
+
+    # Subscribe to the demodulator's sample
+    path = path_demod
+    daq.subscribe(path)
+
+    # Get output amplitude
+    global out_ampl 
+    out_ampl = daq.getDouble('/%s/sigouts/%s/amplitudes/3' % (device, out_c))/np.sqrt(2)
+
+    # Get time constant in seconds
+    TC = daq.getDouble('/%s/demods/%s/timeconstant' % (device, demod_c))
+    # Wait for the demodulator filter to settle
+    time.sleep(5*TC)
+
+    
+
+
+
     
 
     
@@ -247,44 +362,22 @@ def UHF_measure_demod(demod_c = 0, out_c = 0):
     """
 
     
+    
+    path = path_demod
+
     # Poll data parameters
-    poll_length = 0.01  # [s]
+    poll_length = 0.001  # [s]
     poll_timeout = 500  # [ms]
     poll_flags = 0
-    poll_return_flat_dict = True
+    poll_return_flat_dict = True 
+
     
-    daq.setInt('/%s/demods/%s/enable' % (device, demod_c) , 1)  # Enable demodulator 1
-    
+
     #START MEASURE
-    # Unsubscribe any streaming data
-    daq.unsubscribe('*')
-
-
-
-    # Wait for the demodulator filter to settle
-    # time.sleep(3*time_constant)
-
-    # Perform a global synchronisation between the device and the data server:
-    # Ensure that 1. the settings have taken effect on the device before issuing
-    # the poll() command and 2. clear the API's data buffers. Note: the sync()
-    # must be issued after waiting for the demodulator filter to settle above.
-    daq.sync()
-
-    # Subscribe to the demodulator's sample
-    path = '/%s/demods/%d/sample' % (device, demod_c)
-    daq.subscribe(path)
 
     data = daq.poll(poll_length, poll_timeout, poll_flags, poll_return_flat_dict)  # Readout from subscribed node (demodulator)
     
     #END OF MEASURE
-
-  
-            
-    # Unsubscribe from all paths
-    daq.unsubscribe('*')
-    
-    # Disable demodulator
-    daq.setInt('/%s/demods/%s/enable' % (device, demod_c) , 0)
     
 
     # Check the dictionary returned is non-empty
@@ -297,10 +390,12 @@ def UHF_measure_demod(demod_c = 0, out_c = 0):
 
     # The data returned is a dictionary of dictionaries that reflects the node's path
     sample = data[path]
-    sample['R'] = np.sqrt(sample['x']**2 + sample['y']**2) # Calculating R value from X and y values
+    sample_x = np.array(sample['x'])    # Converting samples to numpy arrays for faster calculation
+    sample_y = np.array(sample['y'])    # Converting samples to numpy arrays for faster calculation
+    sample_r = np.sqrt(sample_x**2 + sample_y**2)   # Calculating R value from X and y values
     
-    out_ampl = daq.getDouble('/%s/sigouts/%s/amplitudes/3' % (device, out_c))/np.sqrt(2)
-    sample_mean = np.mean(sample['R'])  # Mean value of recorded data vector
+    
+    sample_mean = np.mean(sample_r)  # Mean value of recorded data vector
     measured_ac_resistance = out_ampl/sample_mean
   
     return measured_ac_resistance 

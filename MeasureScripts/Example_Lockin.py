@@ -1,10 +1,6 @@
 from numpy import pi, random, arange, size
 from time import time,sleep
-import AWG_lib
-
-#####################################################
-# this part is to simulate some data, you can skip it
-#####################################################
+import UHFLI_lib
 
 
 
@@ -14,7 +10,7 @@ import AWG_lib
 #####################################################
 IVVI = qt.instruments.create('DAC','IVVI',interface = 'COM4', polarity=['BIP', 'BIP', 'BIP', 'BIP'], numdacs=16)  # Initialize IVVI
 dmm = qt.instruments.create('dmm','a34410a', address = 'USB0::0x0957::0x0607::MY53003401::INSTR')   # Initialize dmm
-T1_lib.UHF_init()  # Initialize UHF LI
+UHFLI_lib.UHF_init_demod()  # Initialize UHF LI
 
 gain = 1e6 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for 1G
 
@@ -46,7 +42,6 @@ data = qt.Data(name='testmeasurement')
 # If you don't supply it, the data class will guess your data format.
 data.add_coordinate('Voltage [mV]')   
 
-data.add_value('Current [pA]')
 data.add_value('Resistance [ohms]')
 
 # The next command will actually create the dirs and files, based
@@ -59,8 +54,8 @@ data.create_file()
 # measurement a 'name' can be provided so that window can be reused.
 # If the 'name' doesn't already exists, a new window with that name
 # will be created. For 3d plots, a plotting style is set.
-plot2d_dmm = qt.Plot2D(data, name='dmm',valdim=1)
-plot2d_lockin = qt.Plot2D(data, name='lockin', valdim=2)
+plot2d_lockin = qt.Plot2D(data, name='lockin', autoupdate=False)
+plot2d_lockin.set_style('points')
 
 
 
@@ -73,12 +68,11 @@ for v in v_vec:
     IVVI.set_dac1(v)
 
     # readout
-    result_dmm = dmm.get_readval()/gain*1e12     # Reading the dmm and correcting for M1b gain and output in pA
-    result_lockin = T1_lib.UHF_measure_demod()*gain  # Reading the lockin and correcting for M1b gain
+    result_lockin = UHFLI_lib.UHF_measure_demod()*gain  # Reading the lockin and correcting for M1b gain
 
     # save the data point to the file
-    data.add_data_point(v, result_dmm, result_lockin)
-    plot2d_dmm.update()     # forcing plot update after each collected point
+    data.add_data_point(v, result_lockin)  
+
     plot2d_lockin.update()
 
     # the next function is necessary to keep the gui responsive. It
@@ -87,6 +81,7 @@ for v in v_vec:
     qt.msleep(0.001)
 stop = time()
 print 'Duration: %s sec' % (stop - start, )
+
 
    
 

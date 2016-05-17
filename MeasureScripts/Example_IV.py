@@ -19,7 +19,7 @@ gain = 1e6 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for
 bias = 500
 # you define two vectors of what you want to sweep. In this case
 # a magnetic field (b_vec) and a frequency (f_vec)
-v_vec = arange(0,-500,-2)
+v_vec = arange(-500,500,2)
 
 
 # you indicate that a measurement is about to start and other
@@ -57,7 +57,7 @@ data.create_file()
 # measurement a 'name' can be provided so that window can be reused.
 # If the 'name' doesn't already exists, a new window with that name
 # will be created. For 3d plots, a plotting style is set.
-plot2d = qt.Plot2D(data, name='measure2D_2')
+plot2d = qt.Plot2D(data, name='measure2D_2', autoupdate=False)
 plot2d.set_style('lines')
 
 
@@ -82,6 +82,7 @@ for v in v_vec:
     qt.msleep(0.001)
 stop = time()
 print 'Duration: %s sec' % (stop - start, )
+
 
    
 
