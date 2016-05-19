@@ -16,7 +16,7 @@ gain = 1e6 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for
 
 
 # Sweeping vectors
-v_vec = arange(-500,500,2)
+v_vec = arange(-5,5,2)
 
 
 # you indicate that a measurement is about to start and other
@@ -42,12 +42,15 @@ data = qt.Data(name='testmeasurement')
 # If you don't supply it, the data class will guess your data format.
 data.add_coordinate('Voltage [mV]')   
 
-data.add_value('Resistance [ohms]')
+data.add_value('AC_Conductance ')
 
 # The next command will actually create the dirs and files, based
 # on the information provided above. Additionally a settingsfile
 # is created containing the current settings of all the instruments.
 data.create_file()
+
+# Getting filepath to the data file
+data_path = data.get_dir() 
 
 # Next two plot-objects are created. First argument is the data object
 # that needs to be plotted. To prevent new windows from popping up each
@@ -55,7 +58,7 @@ data.create_file()
 # If the 'name' doesn't already exists, a new window with that name
 # will be created. For 3d plots, a plotting style is set.
 plot2d_lockin = qt.Plot2D(data, name='lockin', autoupdate=False)
-plot2d_lockin.set_style('points')
+plot2d_lockin.set_style('lines')
 
 
 
@@ -67,8 +70,10 @@ for v in v_vec:
     # set the voltage
     IVVI.set_dac1(v)
 
-    # readout
-    result_lockin = UHFLI_lib.UHF_measure_demod()/gain  # Reading the lockin and correcting for M1b gain
+    # readout form UHFLI
+    # argument Num_of_TC represents number of time constants to wait before raeding the value
+    # it is important because of the settling time of the low pass filter
+    result_lockin = UHFLI_lib.UHF_measure_demod(Num_of_TC = 0.2)*gain  # Reading the lockin and correcting for M1b gain
 
     # save the data point to the file
     data.add_data_point(v, result_lockin)  
@@ -82,8 +87,9 @@ for v in v_vec:
 stop = time()
 print 'Duration: %s sec' % (stop - start, )
 
-
-   
+# Saving UHFLI setting to the measurement data folder
+# You can load this settings file from UHFLI user interface 
+UHFLI_lib.UHF_save_settings(path = data_path)
 
 
 # after the measurement ends, you need to close the data file.
