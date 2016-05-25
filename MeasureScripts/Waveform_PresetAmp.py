@@ -426,8 +426,8 @@ class Waveform():
         pulse.setAmplitudes(**buffer_dict_Amplitudes)    # Passing amplitude info to Pulse class (passed as dict)
         pulse.setTimings(**buffer_dict_Timings)    # Passing timing info to Pulse class (passed as dict)
         self.lengthV = len(buffer_dict_Timings)    # Synchronization 
-        #if self.lengthV == self.lengthM:
-            #pulse.plotWaveform()
+        if self.lengthV == self.lengthM:
+            pulse.plotWaveform()
         
         
             
@@ -452,8 +452,8 @@ class Waveform():
         pulse.setMarker1(**buffer_dict_Marker1) 
         pulse.setMarker2(**buffer_dict_Marker2)
         self.lengthM = len(buffer_dict_Marker2)    # Synchronization 
-        #if self.lengthV == self.lengthM:
-            #pulse.plotWaveform()
+        if self.lengthV == self.lengthM:
+            pulse.plotWaveform()
             
             
 ## SEQUENCES    

@@ -393,18 +393,18 @@ def UHF_measure_demod(Num_of_TC = 3, demod_c = 0, out_c = 0):
     sample_x = np.array(sample['x'])    # Converting samples to numpy arrays for faster calculation
     sample_y = np.array(sample['y'])    # Converting samples to numpy arrays for faster calculation
     sample_r = np.sqrt(sample_x**2 + sample_y**2)   # Calculating R value from X and y values
-    #sample['R'] = np.sqrt(sample['x']**2 + sample['y']**2) # Calculating R value from X and y values
+    
     
     
     sample_mean = np.mean(sample_r)  # Mean value of recorded data vector
-    measured_ac_conductance = out_ampl/sample_mean
+    measured_ac_conductance = sample_mean/out_ampl
   
     return measured_ac_conductance 
 
 
 
 
-def UHF_save_settings(daq = daq, path = None, filename = 'UHFLI_settings_file.xml'):
+def UHF_save_settings(path = None, filename = 'UHFLI_settings_file.xml'):
     """
     Saving UHF Lockin settings file to a location defined by path in a file defined
     by filename.

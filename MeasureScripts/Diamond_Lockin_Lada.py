@@ -14,8 +14,8 @@ gain = 1e6 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for
 
 # you define two vectors of what you want to sweep. In this case
 # a magnetic field (b_vec) and a frequency (f_vec)
-v1_vec = arange(22,400,1)
-v2_vec = arange(-500,500,50)
+v1_vec = arange(-450,-200,1)  #V_g
+v2_vec = arange(-200,200,2) #V_sd
 
 
 
@@ -30,7 +30,7 @@ qt.mstart()
 # and will be called:
 # <timestamp>_testmeasurement.dat
 # to find out what 'datadir' is set to, type: qt.config.get('datadir')
-data = qt.Data(name='testmeasurement')
+data = qt.Data(name='13-14_lockin')
 
 # Now you provide the information of what data will be saved in the
 # datafile. A distinction is made between 'coordinates', and 'values'.
@@ -39,8 +39,8 @@ data = qt.Data(name='testmeasurement')
 # information is used later for plotting purposes.
 # Adding coordinate and value info is optional, but recommended.
 # If you don't supply it, the data class will guess your data format.
-data.add_coordinate('Voltage1 [mV]')
-data.add_coordinate('Voltage2 [mV]')
+data.add_coordinate('V_{SD} [mV]')
+data.add_coordinate('V_G [mV]')
 data.add_value('AC_Conductance ')
 
 # The next command will actually create the dirs and files, based
@@ -54,7 +54,7 @@ data.create_file()
 # If the 'name' doesn't already exists, a new window with that name
 # will be created. For 3d plots, a plotting style is set.
 plot2d = qt.Plot2D(data, name='measure2D',autoupdate=False)
-plot3d = qt.Plot3D(data, name='measure3D', coorddims=(0,1), valdim=2, style='image')
+plot3d = qt.Plot3D(data, name='measure3D', coorddims=(1,0), valdim=2, style='image')
 
 
 
@@ -75,11 +75,11 @@ for v1 in v1_vec:
         IVVI.set_dac1(v2)
 
         # readout
-        result = UHFLI_lib.UHF_measure_demod()/gain  # Reading the lockin and correcting for M1b gain
+        result = UHFLI_lib.UHF_measure_demod(Num_of_TC = 1)/gain  # Reading the lockin and correcting for M1b gain
     
         # save the data point to the file, this will automatically trigger
         # the plot windows to update
-        data.add_data_point(v2,v1, result)
+        data.add_data_point(v2,v1, result) 
         # the next function is necessary to keep the gui responsive. It
         # checks for instance if the 'stop' button is pushed. It also checks
         # if the plots need updating.
@@ -89,6 +89,7 @@ for v1 in v1_vec:
     
 
     plot2d.update()
+    plot3d.update() #added
 
     vec_count = vec_count + 1
     print 'Estimated time left: %s hours\n' % str(datetime.timedelta(seconds=int((stop - start)*(v1_vec.size - vec_count))))
