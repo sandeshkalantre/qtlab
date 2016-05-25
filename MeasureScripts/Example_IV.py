@@ -1,25 +1,22 @@
 from numpy import pi, random, arange, size
 from time import time,sleep
 
-#####################################################
-# this part is to simulate some data, you can skip it
-#####################################################
-
 
 
 
 #####################################################
-# here is where the actual measurement program starts
+# EXAMPLE SCRIPT SHOWING HOW TO SET UP STANDARD 1D (IV) DMM MEASUREMENT
 #####################################################
-IVVI = qt.instruments.create('DAC','IVVI',interface = 'COM4', polarity=['BIP', 'BIP', 'BIP', 'BIP'], numdacs=16)
-dmm = qt.instruments.create('dmm','a34410a', address = 'USB0::0x0957::0x0607::MY53003401::INSTR')
+IVVI = qt.instruments.create('DAC','IVVI',interface = 'COM4', polarity=['BIP', 'BIP', 'BIP', 'BIP'], numdacs=16)  # Initialize IVVI
+dmm = qt.instruments.create('dmm','a34410a', address = 'USB0::0x0957::0x0607::MY53003401::INSTR')  # Initialize dmm
+dmm.set_NPLC = 0.1  # Setting PLCs of dmm
 
-gain = 1e6 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for 1G
+gain = 1e6 # hoose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for 1G
 
 bias = 500
-# you define two vectors of what you want to sweep. In this case
-# a magnetic field (b_vec) and a frequency (f_vec)
-v_vec = arange(600,0,2)
+
+# Sweeping vector
+v_vec = arange(600,0,-10)  ''' !! Take care about step sign '''
 
 
 # you indicate that a measurement is about to start and other
@@ -33,7 +30,8 @@ qt.mstart()
 # and will be called:
 # <timestamp>_testmeasurement.dat
 # to find out what 'datadir' is set to, type: qt.config.get('datadir')
-data = qt.Data(name='testmeasurement')
+
+data = qt.Data(name=' testmeasurement')  # Put one space before name
 
 
 # Now you provide the information of what data will be saved in the
@@ -43,9 +41,10 @@ data = qt.Data(name='testmeasurement')
 # information is used later for plotting purposes.
 # Adding coordinate and value info is optional, but recommended.
 # If you don't supply it, the data class will guess your data format.
-data.add_coordinate('Voltage [mV]')
 
-data.add_value('Current [pA]')
+data.add_coordinate('Voltage [mV]')     # Underline makes the next letter as index
+
+data.add_value('Current [pA]')          # Underline makes the next letter as index
 
 # The next command will actually create the dirs and files, based
 # on the information provided above. Additionally a settingsfile

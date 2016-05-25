@@ -1,18 +1,26 @@
 from numpy import pi, random, arange, size
 from time import time,sleep
-import AWG_lib
+
+#####################################################
+# this part is to simulate some data, you can skip it
+#####################################################
 
 
 
 
 #####################################################
-# EXAMPLE SCRIPT SHOWING HOW TO DO MEASUREMENT WITH UHF LOCKIN AMPLIFIER SCOPE
+# here is where the actual measurement program starts
 #####################################################
-T1_lib.UHF_init()  # Initialize UHF LI
+IVVI = qt.instruments.create('DAC','IVVI',interface = 'COM4', polarity=['BIP', 'BIP', 'BIP', 'BIP'], numdacs=16)
+dmm = qt.instruments.create('dmm','a34410a', address = 'USB0::0x0957::0x0607::MY53003401::INSTR')
 
-# Sweeping vector
-v_vec = arange(0,600,200)
+gain = 1e6 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for 1G
 
+#bias = 500
+
+# you define two vectors of what you want to sweep. In this case
+# a magnetic field (b_vec) and a frequency (f_vec)
+v_vec = arange(-10,10,0.5)
 
 
 # you indicate that a measurement is about to start and other
@@ -26,8 +34,8 @@ qt.mstart()
 # and will be called:
 # <timestamp>_testmeasurement.dat
 # to find out what 'datadir' is set to, type: qt.config.get('datadir')
+data = qt.Data(name='13-14_iv')
 
-data = qt.Data(name=' testmeasurement')  # Put one space before name
 
 # Now you provide the information of what data will be saved in the
 # datafile. A distinction is made between 'coordinates', and 'values'.
@@ -36,41 +44,40 @@ data = qt.Data(name=' testmeasurement')  # Put one space before name
 # information is used later for plotting purposes.
 # Adding coordinate and value info is optional, but recommended.
 # If you don't supply it, the data class will guess your data format.
-data.add_coordinate('Samples')
+data.add_coordinate('Voltage [mV]')
 
-data.add_value('Readout')
+data.add_value('Current [pA]')
 
 # The next command will actually create the dirs and files, based
 # on the information provided above. Additionally a settingsfile
 # is created containing the current settings of all the instruments.
 data.create_file()
 
-# Getting filepath to the data file
-data_path = data.get_dir() 
-
 # Next two plot-objects are created. First argument is the data object
 # that needs to be plotted. To prevent new windows from popping up each
 # measurement a 'name' can be provided so that window can be reused.
 # If the 'name' doesn't already exists, a new window with that name
 # will be created. For 3d plots, a plotting style is set.
-plot2d = qt.Plot2D(data, name='measure2D')
+plot2d = qt.Plot2D(data, name='measure2D_2', autoupdate=False)
 plot2d.set_style('lines')
 
 
 # preparation is done, now start the measurement.
+
+#IVVI.set_dac1(bias)
+
 # It is actually a simple loop.
 start = time()
 for v in v_vec:
-   
+    # set the voltage
+    IVVI.set_dac1(v)
 
     # readout
-    shotCH1,shotCH2 = T1_lib.UHF_measure(maxtime = 1)  # Reading out UHF LI scope shot. Channel one data in shotCH1, channel two data in shotCH2
-                                                       # maxtime is maximum measurement time in seconds
-
+    result = dmm.get_readval()/gain*1e12
 
     # save the data point to the file, this will automatically trigger
     # the plot windows to update
-    data.add_data_point(v, sum(shotCH1)/len(shotCH1))
+    data.add_data_point(v, result)
     plot2d.update()
     # the next function is necessary to keep the gui responsive. It
     # checks for instance if the 'stop' button is pushed. It also checks
@@ -78,12 +85,9 @@ for v in v_vec:
     qt.msleep(0.001)
 stop = time()
 print 'Duration: %s sec' % (stop - start, )
-print 'Overal duration prediction: %s sec' % (stop - start, )*len(v)
 
 
-# Saving UHFLI setting to the measurement data folder
-# You can load this settings file from UHFLI user interface 
-UHFLI_lib.UHF_save_settings(path = data_path)  
+   
 
 
 # after the measurement ends, you need to close the data file.

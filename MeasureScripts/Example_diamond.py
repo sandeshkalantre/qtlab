@@ -2,25 +2,22 @@ from numpy import pi, random, arange, size
 from time import time,sleep
 import datetime
 
-#####################################################
-# this part is to simulate some data, you can skip it
-#####################################################
-
-
 
 
 #####################################################
-# here is where the actual measurement program starts
+# EXAMPLE SCRIPT SHOWING HOW TO SET UP STANDARD DIAMOND MEASUREMENT WITH DMM
 #####################################################
 IVVI = qt.instruments.create('DAC','IVVI',interface = 'COM4')
 dmm = qt.instruments.create('dmm','a34410a', address = 'USB0::0x0957::0x0607::MY53003401::INSTR')
+dmm.set_NPLC = 0.1  # Setting PLCs of dmm
 
 gain = 10e6 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for 1G
 
 # you define two vectors of what you want to sweep. In this case
-# a magnetic field (b_vec) and a frequency (f_vec)
-v1_vec = arange(22,400,1)
-v2_vec = arange(-500,500,50)
+# a gate voltage (v1_vec) and a bias voltage (v2_vec)
+
+v1_vec = arange(0,10,2)     ''' !! Take care about step sign '''
+v2_vec = arange(-50,50,20)  ''' !! Take care about step sign '''
 
 
 
@@ -35,7 +32,8 @@ qt.mstart()
 # and will be called:
 # <timestamp>_testmeasurement.dat
 # to find out what 'datadir' is set to, type: qt.config.get('datadir')
-data = qt.Data(name='Plot_clear_testmeasurement')
+
+data = qt.Data(name=' testmeasurement')  # Put one space before name
 
 # Now you provide the information of what data will be saved in the
 # datafile. A distinction is made between 'coordinates', and 'values'.
@@ -44,9 +42,10 @@ data = qt.Data(name='Plot_clear_testmeasurement')
 # information is used later for plotting purposes.
 # Adding coordinate and value info is optional, but recommended.
 # If you don't supply it, the data class will guess your data format.
-data.add_coordinate('Voltage1 [mV]')
-data.add_coordinate('Voltage2 [mV]')
-data.add_value('Voltage [V]')
+
+data.add_coordinate('V_S_D [mV]')  # Underline makes the next letter as index
+data.add_coordinate('V_G [mV]')    # Underline makes the next letter as index
+data.add_value('Current [pA]')     # Underline makes the next letter as index
 
 # The next command will actually create the dirs and files, based
 # on the information provided above. Additionally a settingsfile
@@ -59,7 +58,7 @@ data.create_file()
 # If the 'name' doesn't already exists, a new window with that name
 # will be created. For 3d plots, a plotting style is set.
 plot2d = qt.Plot2D(data, name='measure2D',autoupdate=False)
-plot3d = qt.Plot3D(data, name='measure3D', coorddims=(0,1), valdim=2, style='image')
+plot3d = qt.Plot3D(data, name='measure3D', coorddims=(1,0), valdim=2, style='image')
 
 
 
@@ -92,7 +91,9 @@ for v1 in v1_vec:
     stop = time()
     
 
-    plot2d.update()
+    plot2d.update()  # Updating 2d plot every iteration trough inner loop
+    plot3d.update()  # Updating 3d plot every iteration trough inner loop
+
 
     vec_count = vec_count + 1
     print 'Estimated time left: %s hours\n' % str(datetime.timedelta(seconds=int((stop - start)*(v1_vec.size - vec_count))))
