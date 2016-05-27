@@ -41,7 +41,7 @@ config['exitscript'] = []       #e.g. ['closescript1.py', 'closescript2.py']
 # NOTE : change the script folder when moving to a different directory
 config['scriptdirs'] = [
         'examples/scripts',
-        'C:/QTLab2/qtlab/MeasureScripts',
+        'MeasureScripts',
 #        'd:/scripts',
 ]
 
@@ -66,3 +66,6 @@ config['startgui'] = True
 
 # Enter a filename here to log all IPython commands
 config['ipython_logfile'] = ''      #e.g. 'command.log'
+
+#adding the tmp directory
+config['tempdir'] = 'tmp'

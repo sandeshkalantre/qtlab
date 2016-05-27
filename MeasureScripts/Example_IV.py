@@ -16,7 +16,7 @@ gain = 1e6 # hoose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for
 bias = 500
 
 # Sweeping vector
-v_vec = arange(600,0,-10)  ''' !! Take care about step sign '''
+v_vec = arange(600,0,-10)  #''' !! Take care about step sign '''
 
 
 # you indicate that a measurement is about to start and other

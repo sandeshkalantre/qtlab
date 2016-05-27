@@ -72,6 +72,7 @@ class FlowControl(SharedGObject):
         '''
 
         self._measurements_running += 1
+        print "is the measurement running>?"
         if self._measurements_running == 1:
             self._set_status('running')
             self.emit('measurement-start')

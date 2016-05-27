@@ -299,9 +299,10 @@ class MeasurementWindow(QTWindow):
         self._measure_1 = QTMeasureVarSettings('Measurement 1')
         self._measure_2 = QTMeasureVarSettings('Measurement 2')
 
-        self._start_but = gtk.Button(_L('Start'))
+        self._start_but = gtk.Button(_L('Start Measurement'))
         self._start_but.connect('clicked', self._start_clicked_cb)
         self._stop_but = StopButton()
+        self._stop_but.connect('clicked'self._stop_clicked_cb_hard)
         self._stop_but.set_sensitive(False)
 
         self._status_label = gtk.Label(_L('Idle'))
@@ -388,11 +389,11 @@ class MeasurementWindow(QTWindow):
         f.write(s.get_script())
         f.close()
 
-        cmd = 'qt.Script(%r)()' % fn
-        qt.interpreter.ip_queue(cmd, callback=do_print)
-
+        #qt.interpreter.ip_queue(cmd, callback=do_print)
+        execfile(fn)
         self._measurement_start = time.time()
-
+    def _stop_clicked_cb_hard(self,widget):
+        qt.mstop()
     def _measurement_finished_cb(self, sender):
         logging.debug('Measurement finished')
         self.set_sensitive(True)
