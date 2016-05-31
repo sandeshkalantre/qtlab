@@ -17,20 +17,22 @@ SET PATH=%CD%\3rd_party\Console2\;%PATH%
 
 :: Add GTK to PATH and set GTK_BASEPATH (not needed if using
 :: pygtk-all-in-one installer).
-::SET GTK_BASEPATH=%CD%\3rd_party\gtk
-::SET PATH=%CD%\3rd_party\gtk\bin;%CD%\3rd_party\gtk\lib;%PATH%
+:: SET GTK_BASEPATH=%CD%\3rd_party\gtk
+:: SET PATH=%CD%\3rd_party\gtk\bin;%CD%\3rd_party\gtk\lib;%PATH%
 
 :: Check for version of python
+:: Python installed with Canopy
 IF EXIST C:\Users\nanoelectronics\AppData\Local\Enthought\Canopy32\User\Scripts\python.exe (
     SET PYTHON_PATH=C:\Users\nanoelectronics\AppData\Local\Enthought\Canopy32\User\Scripts
     GOTO mark1
 )
+:: Python installed manually
 IF EXIST c:\python26\python.exe (
     SET PYTHON_PATH=c:\python26
     GOTO mark1
 )
-:mark1
 
+:mark1
 :: Run QTlab
 :: check if version < 0.11
 IF EXIST "%PYTHON_PATH%\ipython.py" (
@@ -39,10 +41,10 @@ IF EXIST "%PYTHON_PATH%\ipython.py" (
 )
 :: check if version >= 0.11
 IF EXIST "%PYTHON_PATH%\ipython-script.py" (
-    start Console -w "QTLab" -r "/k %PYTHON_PATH%\python.exe %PYTHON_PATH%\ipython-script.py --gui=gtk -i source/qtlab_shell.py -- %*"
+    start Console -w "QTLab" -r "/k %PYTHON_PATH%\python.exe %PYTHON_PATH%\ipython-script.py --gui=gtk -i --debug --pdb source/qtlab_shell.py -- %*"
     GOTO EOF
 )
 
-echo Failed to run qtlab.bat
+echo Failed to run qtlab.bat.
 pause
 :EOF

@@ -83,11 +83,11 @@ def do_start():
     return filelist
 
 if __name__ == '__main__':
-    print 'Starting QT Lab environment...'
+    print 'Starting QT Lab environment'
     filelist = do_start()
     for (dir, name) in filelist:
         filename = '%s/%s' % (dir, name)
-        print 'Executing %s...' % (filename)
+        print 'Executing %s' % (filename)
         try:
             execfile(filename)
         except SystemExit:
