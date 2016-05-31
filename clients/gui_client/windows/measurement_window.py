@@ -390,7 +390,6 @@ class MeasurementWindow(QTWindow):
 
         cmd = 'qt.Script(%r)()' % fn
         qt.interpreter.ip_queue(cmd, callback=do_print)
-
         self._measurement_start = time.time()
 
     def _measurement_finished_cb(self, sender):

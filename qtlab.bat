@@ -41,7 +41,7 @@ IF EXIST "%PYTHON_PATH%\ipython.py" (
 )
 :: check if version >= 0.11
 IF EXIST "%PYTHON_PATH%\ipython-script.py" (
-    start Console -w "QTLab" -r "/k %PYTHON_PATH%\python.exe %PYTHON_PATH%\ipython-script.py --gui=gtk -i --debug --pdb source/qtlab_shell.py -- %*"
+    start Console -w "QTLab" -r "/k %PYTHON_PATH%\python.exe %PYTHON_PATH%\ipython-script.py --gui=gtk -i source/qtlab_shell.py -- %*"
     GOTO EOF
 )
 

@@ -41,8 +41,7 @@ config['exitscript'] = []       #e.g. ['closescript1.py', 'closescript2.py']
 # NOTE : change the script folder when moving to a different directory
 config['scriptdirs'] = [
         'examples/scripts',
-        'C:/QTLab2/qtlab/MeasureScripts',
-#        'd:/scripts',
+        'MeasureScripts',
 ]
 
 ## This sets a user instrument directory
@@ -65,4 +64,4 @@ config['startgui'] = True
 #config['gnuplot_terminal'] = 'windows'
 
 # Enter a filename here to log all IPython commands
-config['ipython_logfile'] = ''      #e.g. 'command.log'
+config['ipython_logfile'] = 'command.log'      #e.g. 'command.log'

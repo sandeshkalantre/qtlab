@@ -312,7 +312,7 @@ def get_flowcontrol():
     return _flowcontrol
 
 def qtlab_exit():
-    print "Closing QTlab..."
+    print "Closing QTlab"
 
     import qt
     qt.flow.exit_request()

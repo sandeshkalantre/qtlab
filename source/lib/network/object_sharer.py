@@ -825,10 +825,18 @@ class PythonInterpreter(SharedObject):
         cev = threading.Event()
         rev = threading.Event()
         try:
-            ip = IPython.core.ipapi.get()
+            ip = IPython.get_ipython()
         except:
             ip = IPython.ipapi.get()
-        ip.IP.code_queue.put((c, cev, rev))
+
+        #the holy grail
+        try:
+            ip.ex(cmd)
+        except Exception as e:
+            ip.ex("print %s" %e)
+            ip.ex('print %s' %cmd)
+            raise e
+            
 
 helper = ObjectSharer()
 root = RootObject('root')

@@ -23,5 +23,3 @@ def set_debug(enable):
         logging.info('Set logging level to INFO')
 
 _setup_logging()
-#adding the debugging mode in QTlab
-set_debug(True)

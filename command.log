@@ -1,0 +1,44 @@
+print "hello"
+quit()
+quit()
+s
+quit()
+quit()
+quit()
+qt.config['tempdir']
+qt.flow.measurement_idle()
+qt.flow.is_measuring90
+qt.flow.is_measuring()
+qt.mend()
+import IPython
+ip = IPython.get_ipython()
+at
+qt.Script('tmp/meas1.py')
+qt.Script('tmp/meas1.py')()
+qt.Script('tmp/meas1.py')()
+qt.mend()
+quit()
+qt.mend()
+qt.mend()
+qt.mend()
+qt.mend()
+qt.mend()
+qt.msleep.__doc__
+qt.flow.start_gui()
+
+
+execfile('MeasureScripts/Example_IV.py')
+execfile('MeasureScripts/Example_IV.py')
+execfile('MeasureScripts/Example_IV.py')
+execfile('MeasureScripts/Example_IV.py')
+execfile('MeasureScripts/Example_IV.py')
+execfile('MeasureScripts/Example_IV.py')
+execfile('MeasureScripts/Example_IV.py')
+execfile('MeasureScripts/Example_IV.py')
+execfile('MeasureScripts/Example_IV.py')
+execfile('MeasureScripts/Example_IV.py')
+execfile('MeasureScripts/Example_IV.py')
+execfile('MeasureScripts/Example_IV.py')
+execfile('MeasureScripts/Example_IV.py')
+execfile('MeasureScripts/Example_IV.py')
+execfile('MeasureScripts/Example_IV.py')
