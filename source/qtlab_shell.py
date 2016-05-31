@@ -1,3 +1,7 @@
+# source/qtlab_shell.py
+# The script run by IPython in interactive mode which starts QTLab
+# Also parses QTLab command line options
+
 import os
 import sys
 
