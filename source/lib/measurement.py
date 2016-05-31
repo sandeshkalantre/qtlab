@@ -21,7 +21,6 @@ import gobject
 import logging
 import qt
 from data import Data
-import pdb
 
 class Measurement(gobject.GObject):
 
@@ -348,7 +347,6 @@ def measure1d(
         sweep_ins, sweep_var, start, end, **kwargs):
 
     m = Measurement()
-    pdb.set_trace()
     m.add_coordinate(start, end, sweep_ins, sweep_var, **kwargs)
     m.add_measurement(read_ins, read_var)
 
