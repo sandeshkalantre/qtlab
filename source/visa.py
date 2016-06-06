@@ -90,10 +90,10 @@ class TcpIpInstrument:
         ret = self.read()
 
     def write(self, data):
-        self.clear()
-        if not data.endswith(self._termchars):
-            data += self._termchars
-        self._socket.send(data)
+        #self.clear()
+        #if not data.endswith(self._termchars):
+            #data += self._termchars
+        self._socket.send(data + '\n')
 
     def read(self, timeout=None):
         if timeout is None:

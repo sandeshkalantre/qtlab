@@ -1087,7 +1087,6 @@ class Tektronix_AWG5014(Instrument):
         s3 = 'MAGIC 1000\n'
         s5 = ws
         s6 = 'CLOCK %.10e\n' % clock
-
         s4 = '#' + str(len(str(len(s5)))) + str(len(s5))
         lenlen=str(len(str(len(s6) + len(s5) + len(s4) + len(s3))))
         s2 = '#' + lenlen + str(len(s6) + len(s5) + len(s4) + len(s3))
