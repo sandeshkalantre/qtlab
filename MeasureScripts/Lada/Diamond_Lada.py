@@ -15,12 +15,12 @@ import datetime
 IVVI = qt.instruments.create('DAC','IVVI',interface = 'COM4')
 dmm = qt.instruments.create('dmm','a34410a', address = 'USB0::0x0957::0x0607::MY53003401::INSTR')
 
-gain = 10e6 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for 1G
+gain = 1e9 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for 1G
 
 # you define two vectors of what you want to sweep. In this case
 # a magnetic field (b_vec) and a frequency (f_vec)
-v1_vec = arange(-420,-300,1)     #V_g
-v2_vec = arange(-500,500,10)  #V_sd 
+v1_vec = arange(314,250,-2)     #V_g
+v2_vec = arange(-300,300,0.3)  #V_sd 
 
 
 
@@ -35,7 +35,7 @@ qt.mstart()
 # and will be called:
 # <timestamp>_testmeasurement.dat
 # to find out what 'datadir' is set to, type: qt.config.get('datadir')
-data = qt.Data(name='13-14_diamond')
+data = qt.Data(name='13-18_diamond')
 
 # Now you provide the information of what data will be saved in the
 # datafile. A distinction is made between 'coordinates', and 'values'.
@@ -75,7 +75,7 @@ for v1 in v1_vec:
     
     start = time()
     # set the voltage
-    IVVI.set_dac3(v1)
+    IVVI.set_dac5(v1)
 
 
     for v2 in v2_vec:

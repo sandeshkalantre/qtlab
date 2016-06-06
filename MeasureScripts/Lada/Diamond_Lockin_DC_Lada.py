@@ -16,8 +16,8 @@ gain = 1e6 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for
 
 # you define two vectors of what you want to sweep. In this case
 # a magnetic field (b_vec) and a frequency (f_vec)
-v1_vec = arange(-420,-300,1)  #V_g
-v2_vec = arange(-500,500,10) #V_sd
+v1_vec = arange(-600,0,0.5)  #V_g
+v2_vec = arange(-1000,1000,1) #V_sd
 
 
 
@@ -33,9 +33,9 @@ qt.mstart()
 # <timestamp>_testmeasurement.dat
 # to find out what 'datadir' is set to, type: qt.config.get('datadir')
 
-data_ac = qt.Data(name='13-14_lockin') #just renamed
+data_ac = qt.Data(name='13-18 lockin') #just renamed
 
-data_dc = qt.Data(name='13-14_dc') #added to have current recored as well
+data_dc = qt.Data(name='13-18 dc') #added to have current recored as well
 
 # Now you provide the information of what data will be saved in the
 # datafile. A distinction is made between 'coordinates', and 'values'.
@@ -80,7 +80,7 @@ for v1 in v1_vec:
     
     start = time()
     # set the voltage 
-    IVVI.set_dac3(v1)
+    IVVI.set_dac5(v1)
 
     for v2 in v2_vec:
         
@@ -88,7 +88,7 @@ for v1 in v1_vec:
         IVVI.set_dac1(v2)
 
         # readout
-        result_ac = UHFLI_lib.UHF_measure_demod(Num_of_TC = 1)/gain  # Reading the lockin and correcting for M1b gain
+        result_ac = UHFLI_lib.UHF_measure_demod(Num_of_TC = 5)/gain  # Reading the lockin and correcting for M1b gain
         result_dc = dmm.get_readval()/gain*1e12
     
         # save the data point to the file, this will automatically trigger
