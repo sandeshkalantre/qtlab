@@ -19,8 +19,8 @@ gain = 1e9 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for
 
 # you define two vectors of what you want to sweep. In this case
 # a magnetic field (b_vec) and a frequency (f_vec)
-v1_vec = arange(314,250,-2)     #V_g
-v2_vec = arange(-300,300,0.3)  #V_sd 
+v1_vec = arange(130,40,-0.06)     #V_g
+v2_vec = arange(-4,3,0.06)  #V_sd 
 
 
 
@@ -75,12 +75,12 @@ for v1 in v1_vec:
     
     start = time()
     # set the voltage
-    IVVI.set_dac5(v1)
+    IVVI.set_dac1(v1)
 
 
     for v2 in v2_vec:
 
-        IVVI.set_dac1(v2)
+        IVVI.set_dac5(v2)
 
         # readout
         result = dmm.get_readval()/gain*1e12
