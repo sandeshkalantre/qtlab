@@ -19,7 +19,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from instrument import Instrument
-#import visa
+import visa
 import Socket_Instrument  #ADDED    
 import types
 import logging
@@ -65,8 +65,8 @@ class Tektronix_AWG5014(Instrument):
 	self._address = address
 	self._port = 3000  #ADDED
 
-        #self._visainstrument = visa.TcpIpInstrument(self._address,self._port)  #ADDED
-        self._visainstrument = Socket_Instrument.Socket_Instrument(self._address,self._port)     # ADDED
+        self._visainstrument = visa.TcpIpInstrument(self._address,self._port)  #ADDED
+        #self._visainstrument = Socket_Instrument.Socket_Instrument(self._address,self._port)     # ADDED
 
         #self._visainstrument = visa.instrument(self._address)
         self._values = {}
@@ -785,7 +785,7 @@ class Tektronix_AWG5014(Instrument):
         '''
         logging.debug(__name__ + ' : Get amplitude of channel %s from instrument'
             % channel)
-        self._visainstrument.write('*OPC?') #Wait until previous command is executed      # ADDED
+        #self._visainstrument.write('*OPC?') #Wait until previous command is executed      # ADDED
         return float(self._visainstrument.ask('SOUR%s:VOLT:LEV:IMM:AMPL?' % channel))
 
     def do_set_amplitude(self, amp, channel):
@@ -1087,7 +1087,6 @@ class Tektronix_AWG5014(Instrument):
         s3 = 'MAGIC 1000\n'
         s5 = ws
         s6 = 'CLOCK %.10e\n' % clock
-
         s4 = '#' + str(len(str(len(s5)))) + str(len(s5))
         lenlen=str(len(str(len(s6) + len(s5) + len(s4) + len(s3))))
         s2 = '#' + lenlen + str(len(s6) + len(s5) + len(s4) + len(s3))

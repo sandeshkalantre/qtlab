@@ -1,6 +1,7 @@
 from numpy import pi, random, arange, size
 from time import time,sleep
 import datetime
+import convert_for_diamond_plot as cnv
 
 
 
@@ -10,14 +11,15 @@ import datetime
 IVVI = qt.instruments.create('DAC','IVVI',interface = 'COM4')
 dmm = qt.instruments.create('dmm','a34410a', address = 'USB0::0x0957::0x0607::MY53003401::INSTR')
 dmm.set_NPLC = 0.1  # Setting PLCs of dmm
+file_name = ' testmeasurement'
 
 gain = 10e6 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for 1G
 
 # you define two vectors of what you want to sweep. In this case
 # a gate voltage (v1_vec) and a bias voltage (v2_vec)
 
-v1_vec = arange(0,10,2)     ''' !! Take care about step sign '''
-v2_vec = arange(-50,50,20)  ''' !! Take care about step sign '''
+v1_vec = arange(0,10,2) ##''' !! Take care about step sign '''
+v2_vec = arange(-50,50,20)  ##''' !! Take care about step sign '''
 
 
 
@@ -33,7 +35,7 @@ qt.mstart()
 # <timestamp>_testmeasurement.dat
 # to find out what 'datadir' is set to, type: qt.config.get('datadir')
 
-data = qt.Data(name=' testmeasurement')  # Put one space before name
+data = qt.Data(name=file_name)  # Put one space before name
 
 # Now you provide the information of what data will be saved in the
 # datafile. A distinction is made between 'coordinates', and 'values'.
@@ -51,6 +53,9 @@ data.add_value('Current [pA]')     # Underline makes the next letter as index
 # on the information provided above. Additionally a settingsfile
 # is created containing the current settings of all the instruments.
 data.create_file()
+
+# Getting filepath to the data file
+data_path = data.get_dir()
 
 # Next two plot-objects are created. First argument is the data object
 # that needs to be plotted. To prevent new windows from popping up each
@@ -102,8 +107,8 @@ for v1 in v1_vec:
 
 print 'Overall duration: %s sec' % (stop - init_start, )
 
-   
-
+# Converting the output file into matrix format which can be read with Diamond plot tool. It is in the same folder as originla file.   
+cnv.convert_to_matrix_file(fname = file_name, path = data_path)
 
 # after the measurement ends, you need to close the data file.
 data.close_file()
