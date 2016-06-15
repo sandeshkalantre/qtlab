@@ -249,7 +249,7 @@ class DataWindow(qtwindow.QTWindow):
         self._plot3d_button.set_sensitive(False)
         for fn in files:
             fullfn = self._entry_map[fn].get_filename()
-            cmd = "qt.plot3(qt.Data(%r), name=%r, style=%r, coorddim=%r, valdim=%r, ofs=%r, traceofs=%r, clear=%r, ret=False)" % (fullfn, name, style, coorddims, valdim, ofs, traceofs, clear);
+            cmd = "qt.plot3(qt.Data(%r), name=%r, style=%r,  coorddims=(1,0), valdim=2, ofs=%r, traceofs=%r, clear=%r, ret=False)" % (fullfn, name, style,  ofs, traceofs, clear);
             qt.interpreter.cmd(cmd, callback=lambda x: self._plot3d_button.set_sensitive(True))
 
     def _clear_clicked_cb(self, sender):
