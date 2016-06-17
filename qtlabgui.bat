@@ -9,6 +9,9 @@
 ::SET GTK_BASEPATH=%CD%\3rd_party\gtk
 ::SET PATH=%CD%\3rd_party\gtk\bin;%CD%\3rd_party\gtk\lib;%PATH%
 
+:: Add Console2 to PATH
+SET PATH=%CD%\3rd_party\Console2\;%PATH%
+
 :: Check for version of python
 IF EXIST C:\Users\nanoelectronics\AppData\Local\Enthought\Canopy32\User\Scripts\python.exe (
     SET PYTHON_PATH=C:\Users\nanoelectronics\AppData\Local\Enthought\Canopy32\User\Scripts
@@ -21,7 +24,7 @@ IF EXIST c:\python26\python.exe (
 :mark1
 
 :: Run QTlab GUI
-start %PYTHON_PATH%\pythonw.exe clients/client_gtk.py --module gui_client --config gui_client.cfg %*
+start Console -w "QTLab GUI" -r "/k %PYTHON_PATH%\python.exe clients/client_gtk.py --module gui_client --config gui_client.cfg %*"
 
 :: Use this for easier debugging
 ::start %PYTHON_PATH%\python.exe clients/client_gtk.py --module gui_client --config gui_client.cfg %*

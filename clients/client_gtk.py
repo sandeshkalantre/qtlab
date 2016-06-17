@@ -4,6 +4,17 @@ import os
 import sys
 import logging
 
+def _setup_logging():
+    logging.basicConfig(level=logging.INFO,
+        format='%(asctime)s %(levelname)-8s: %(message)s (%(filename)s:%(lineno)d)',
+        datefmt='%Y-%m-%d %H:%M')
+    console = logging.StreamHandler()
+    console.setLevel(logging.WARNING)
+    formatter = logging.Formatter('%(name)s: %(levelname)-8s %(message)s')
+    console.setFormatter(formatter)
+    logging.getLogger('').addHandler(console)
+_setup_logging()
+
 import client_shared
 args, pargs = client_shared.process_args()
 

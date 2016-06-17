@@ -1,8 +1,8 @@
 # QTLab gui client
 
 import logging
-l = logging.getLogger()
-l.setLevel(logging.WARNING)
+#l = logging.getLogger()
+#l.setLevel(logging.WARNING)
 
 import os
 import sys

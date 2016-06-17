@@ -64,13 +64,19 @@ class MainWindow(qtwindow.QTWindow):
         self._stop_but = stopbutton.StopButton()
         self._pause_but = stopbutton.PauseButton()
 
+        self._AWG_but = gtk.Button(_L('AWG Interface'))
+        self._AWG_but.connect('clicked',self._AWG_but_handler)
+
+
         vbox = gui.orderedbox.OrderedVBox()
         vbox.add(self._liveplot_but, 10, False)
         vbox.add(self._replot_but, 11, False)
         vbox.add(self._stop_but, 12, False)
         vbox.add(self._pause_but, 13, True)
+        vbox.add(self._AWG_but,20,False)
         self._vbox = vbox
         self.add(self._vbox)
+
 
         self.show_all()
 
@@ -110,12 +116,12 @@ class MainWindow(qtwindow.QTWindow):
             return False
 
         label = gtk.Label("""
-You are closing the QTLab GUI.
+        You are closing the QTLab GUI.
 
-If you want to reopen it, run qt.flow.start_gui()
-from the shell, or run the qtlabgui[.bat] script
-in the QTLab folder.
-""")
+        If you want to reopen it, run qt.flow.start_gui()
+        from the shell, or run the qtlabgui[.bat] script
+        in the QTLab folder.
+        """)
         label.set_line_wrap(True)
 
         checkbox = gtk.CheckButton("Do not show this message again.")
@@ -169,6 +175,12 @@ in the QTLab folder.
 
     def _toggle_replot_cb(self, widget):
         qt.replot_all()
+
+    def _AWG_but_handler(self,button):
+        from awg_gui import Window
+        win = Window()
+        win.window.show()
+        
 
 Window = MainWindow
 
