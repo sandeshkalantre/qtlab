@@ -24,7 +24,7 @@ IF EXIST c:\python26\python.exe (
 :mark1
 
 :: Run QTlab GUI
-start Console -w "QTLab GUI" -r "/k %PYTHON_PATH%\python.exe -m pdb clients/client_gtk.py --module gui_client --config gui_client.cfg %*"
+start Console -w "QTLab GUI" -r "/k %PYTHON_PATH%\python.exe clients/client_gtk.py --module gui_client --config gui_client.cfg %*"
 
 :: Use this for easier debugging
 ::start %PYTHON_PATH%\python.exe clients/client_gtk.py --module gui_client --config gui_client.cfg %*
