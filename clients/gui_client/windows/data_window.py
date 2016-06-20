@@ -55,8 +55,8 @@ class DataWindow(qtwindow.QTWindow):
         self._columns = gtk.Entry()
         self._clear_check = gtk.CheckButton()
         self._clear_check.set_active(True)
-        self._clear_button = gtk.Button(_L('Clear'))
-        self._clear_button.connect('clicked', self._clear_clicked_cb)
+        #self._clear_button = gtk.Button(_L('Clear'))
+        #self._clear_button.connect('clicked', self._clear_clicked_cb)
         self._ofs_entry = gtk.Entry()
         self._traceofs_entry = gtk.Entry()
 
@@ -85,9 +85,7 @@ class DataWindow(qtwindow.QTWindow):
 
         self._plot_box = gui.pack_vbox([
             gui.pack_hbox([vbox1, vbox2], True, True),
-            gui.pack_hbox([self._plot2d_button, self._plot3d_button,
-                self._clear_button], True, True),
-            ], True, True)
+            gui.pack_hbox([self._plot2d_button, self._plot3d_button,], True, True),], True, True)
         self._plot_box.set_border_width(4)
         self._plot_frame = gtk.Frame('Plot')
         self._plot_frame.add(self._plot_box)
@@ -209,7 +207,7 @@ class DataWindow(qtwindow.QTWindow):
         return ofs, traceofs
 
     def _plot2d_clicked_cb(self, sender):
-        #import pdb; pdb.set_trace()
+        
         name = self._plot_name.get_text()
         style = self._plot_style.get_text()
         clear = self._clear_check.get_active()
@@ -254,18 +252,19 @@ class DataWindow(qtwindow.QTWindow):
         self._plot3d_button.set_sensitive(False)
 
         if files == []:
-            self._plot2d_button.set_sensitive(True)
+            self._plot3d_button.set_sensitive(True)
             raise ValueError("No file selected. Please select a file before plotting.")
         for fn in files:
             fullfn = self._entry_map[fn].get_filename()
             cmd = "qt.plot3(qt.Data(%r), name=%r, style=%r,  coorddims=(1,0), valdim=2, ofs=%r, traceofs=%r, clear=%r, ret=False)" % (fullfn, name, style,  ofs, traceofs, clear);
             qt.interpreter.cmd(cmd, callback=lambda x: self._plot3d_button.set_sensitive(True))
 
-    def _clear_clicked_cb(self, sender):
-        name = self._plot_name.get_text()
-        plot = qt.plots[name]
-        if plot is not None:
-            plot.clear()
+    #def _clear_clicked_cb(self, sender):
+    #    import pdb; pdb.set_trace()
+    #    name = self._plot_name.get_text()
+    #    plot = qt.plots[name]
+    #    if plot is not None:
+    #        plot.clear()
 
 Window = DataWindow
 
