@@ -209,6 +209,7 @@ class DataWindow(qtwindow.QTWindow):
         return ofs, traceofs
 
     def _plot2d_clicked_cb(self, sender):
+        #import pdb; pdb.set_trace()
         name = self._plot_name.get_text()
         style = self._plot_style.get_text()
         clear = self._clear_check.get_active()
@@ -225,6 +226,10 @@ class DataWindow(qtwindow.QTWindow):
             valdim = None
 
         self._plot2d_button.set_sensitive(False)
+        if files == []:
+            self._plot2d_button.set_sensitive(True)
+            raise ValueError("No file selected. Please select a file before plotting.")
+
         for fn in files:
             fullfn = self._entry_map[fn].get_filename()
             cmd = "qt.plot(qt.Data(%r), name=%r, style=%r, coorddim=%r, valdim=%r, ofs=%r, traceofs=%r, clear=%r, ret=False)" % (fullfn, name, style, coorddim, valdim, ofs, traceofs, clear);
@@ -247,6 +252,10 @@ class DataWindow(qtwindow.QTWindow):
             valdim = None
 
         self._plot3d_button.set_sensitive(False)
+
+        if files == []:
+            self._plot2d_button.set_sensitive(True)
+            raise ValueError("No file selected. Please select a file before plotting.")
         for fn in files:
             fullfn = self._entry_map[fn].get_filename()
             cmd = "qt.plot3(qt.Data(%r), name=%r, style=%r,  coorddims=(1,0), valdim=2, ofs=%r, traceofs=%r, clear=%r, ret=False)" % (fullfn, name, style,  ofs, traceofs, clear);
