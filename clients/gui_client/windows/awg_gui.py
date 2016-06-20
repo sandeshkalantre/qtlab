@@ -22,6 +22,7 @@ import Waveform_PresetAmp as Wav
 import qt
 
 import os
+import visa
 if 'AWG' in locals():
     AWG._ins._visainstrument.close()   # Trying to close previous AWG session. 
 

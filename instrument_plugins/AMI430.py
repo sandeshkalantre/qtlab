@@ -33,17 +33,17 @@ class AMI430(Instrument):
     MARGIN = 0.0001
     
     #ratio between current and magnetic field
-    COILCONSTANT = 0.1122       #T/A              #0.0510 for Bx            #0.09279 for the center fridge
+    COILCONSTANT = 0.1084       #T/A              #0.0510 for Bx            #0.09279 for the center fridge
     
     #Rated operating current in A, from spec sheet. A margin of 0.03A is added so that the rated fields fit in.
     #If the magnet quenches regularly, reduce these values!!!!
-    CURRENTRATING = 53      #A            # 78 for Bx
+    CURRENTRATING = 80      #A            # 78 for Bx
     
     #Rated magnetic field based on the two previous values
     FIELDRATING = COILCONSTANT*CURRENTRATING    #mT
     
     #Maximum ramp limits from datasheet
-    CURRENTRAMPLIMIT = 0.1     #A/s    0.0025 for Bx
+    CURRENTRAMPLIMIT = 0.038     #A/s    0.0025 for Bx
     FIELDRAMPLIMIT=COILCONSTANT*CURRENTRAMPLIMIT   #T/s
     
     #Persistent switch rated currents. 
@@ -100,9 +100,9 @@ class AMI430(Instrument):
                 5:'Manual down', 6:'Ramping to zero', 7:'Quench detected', 
                 8:'At zero', 9:'Heating switch', 10:'Cooling switch'})
         
-        self.add_parameter('persistent', type=types.BooleanType,
-                flags=Instrument.FLAG_GETSET,
-                format_map={False:'driven mode',True:'persistent mode'})
+        #self.add_parameter('persistent', type=types.BooleanType,
+        #        flags=Instrument.FLAG_GETSET,
+        #        format_map={False:'driven mode',True:'persistent mode'})
         
         self.add_parameter('quench', type=types.BooleanType,
                 flags=Instrument.FLAG_GET,
@@ -134,9 +134,9 @@ class AMI430(Instrument):
         self.get_field()
         self.get_current()		
         self.get_rampState()
-        self.get_pSwitch()
+        #self.get_pSwitch()
         self.get_rampRate()
-        self.get_persistent()
+        #self.get_persistent()
         self.get_quench()
         self.get_setPoint()
         self.get_units()		
