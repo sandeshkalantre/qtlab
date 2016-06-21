@@ -1,8 +1,9 @@
 *.pyc
 gui_client.cfg
-qtlab.log
 qtlab.cfg
+qtlab.log
+qtlab.bat
+qtlabgui.bat
+userconfig.py
 data
 tmp
-userconfig.py
-

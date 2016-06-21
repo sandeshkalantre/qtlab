@@ -41,7 +41,7 @@ config['exitscript'] = []       #e.g. ['closescript1.py', 'closescript2.py']
 # NOTE : change the script folder when moving to a different directory
 config['scriptdirs'] = [
         'examples/scripts',
-        'C:/QTLab2/qtlab/MeasureScripts',
+        'C:/QTLab/qtlab/MeasureScripts',
 #        'd:/scripts',
 ]
 
@@ -53,7 +53,7 @@ config['scriptdirs'] = [
 ## For adding additional folders to the 'systm path'
 ## so python can find your modules
 import sys
-sys.path.append('C:/QTLab2/qtlab/MeasureScripts')
+sys.path.append('C:/QTLab/qtlab/MeasureScripts')
 #sys.path.append('d:/folder2')
 
 # Whether to start the GUI automatically
