@@ -25,8 +25,8 @@ config['allowed_ips'] = (
 config['instrument_server'] = False
 
 ## This sets a default location for data-storage
-config['datadir'] = 'D:\Measurements\Lada'
-
+config['tempdir'] = 'tmp'
+config['datadir'] = 'C:\QTLab\Measurement_data'
 ## This sets a default directory for qtlab to start in
 #config['startdir'] = 'd:/scripts'
 
