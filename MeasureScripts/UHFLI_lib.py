@@ -296,9 +296,9 @@ def UHF_init_demod(device_id = 'dev2148', demod_c = 0, out_c = 0):
     raw_input("Set the UHF LI parameters in user interface dialog!  Press enter to continue...")  # Wait for user to set the device parametrs from user interface
 
    
-    daq.setInt('/%s/demods/%s/enable' % (device, demod_c) , 1)  # Enable demodulator 1
+    daq.setInt('/%s/demods/%s/enable' % (device, demod_c) , 1)  # Enable demodulator 
 
-    daq.setInt('/%s/demods/%s/rate' % (device, demod_c), 1000000) # Set the demodulator sampling rate
+    daq.setInt('/%s/demods/%s/rate' % (device, demod_c), 100000) # Set the demodulator sampling rate
     
     
     # Unsubscribe any streaming data
@@ -326,6 +326,11 @@ def UHF_init_demod(device_id = 'dev2148', demod_c = 0, out_c = 0):
     global out_ampl 
     out_ampl = daq.getDouble('/%s/sigouts/%s/amplitudes/3' % (device, out_c))/np.sqrt(2)
 
+    # Get sampling rate
+    # made globally for using in other functions
+    global sampling_rate
+    sampling_rate = daq.getDouble('/%s/demods/%s/rate' % (device, demod_c))
+
     # Get time constant in seconds 
     # made globally for using in other functions
     global TC
@@ -335,7 +340,9 @@ def UHF_init_demod(device_id = 'dev2148', demod_c = 0, out_c = 0):
     
             
 
-#def UHF_measure_demod(Num_of_TC = 3, demod_c = 0, out_c = 0):
+
+def UHF_measure_demod(Num_of_TC = 3, out_c = 0):
+
 
     """
     Obtaining data from UHF LI demodulator using ziDAQServer's blocking (synchronous) poll() command
@@ -368,12 +375,18 @@ def UHF_init_demod(device_id = 'dev2148', demod_c = 0, out_c = 0):
     poll_flags = 0
     poll_return_flat_dict = True 
 
+    # Data aquisition time for recording 1000 samples
+    acq_time = 1/sampling_rate * 1000
     
 
     #START MEASURE
 
     # Wait for the demodulator filter to settle
     time.sleep(Num_of_TC*TC)
+
+    daq.flush()  # Getting rid of previous read data in the buffer
+
+    time.sleep(acq_time)  # Waiting a bit to record sufficient number of samples
 
     data = daq.poll(poll_length, poll_timeout, poll_flags, poll_return_flat_dict)  # Readout from subscribed node (demodulator)
 
@@ -454,11 +467,10 @@ def UHF_measure_refl(Num_of_TC = 3, demod_c = 0, out_c = 0):
     # The data returned is a dictionary of dictionaries that reflects the node's path
 
 
-    # The data returned is a dictionary of dictionaries that reflects the node's path
     sample = data[path]
     sample_x = np.array(sample['x'])    # Converting samples to numpy arrays for faster calculation
     sample_y = np.array(sample['y'])    # Converting samples to numpy arrays for faster calculation
-    sample_r = np.sqrt(sample_x**2 + sample_y**2)   # Calculating R value from X and y values
+    sample_r = np.sqrt(sample_x**2 + sample_y**2)   # Calculating R value from X and Y values
     
     
     

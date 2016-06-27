@@ -227,7 +227,9 @@ class QTInstrumentFrame(gtk.VBox):
     def _parameter_changed_cb(self, sender, param):
         if param not in self._label_range:
             return False
-
+        
+        if (self._instrument ==  None):
+            return False
         self._label_range[param].set_text(self._instrument.format_range(param))
         self._label_rate[param].set_text(self._instrument.format_rate(param))
         self._parameter_options[param] = self._instrument.get_shared_parameter_options(param)
