@@ -376,9 +376,8 @@ def UHF_measure_demod(Num_of_TC = 3, demod_c = 0, out_c = 0):
     time.sleep(Num_of_TC*TC)
 
     data = daq.poll(poll_length, poll_timeout, poll_flags, poll_return_flat_dict)  # Readout from subscribed node (demodulator)
-    
+
     #END OF MEASURE
-    
 
     # Check the dictionary returned is non-empty
     assert data, "poll() returned an empty data dictionary, did you subscribe to any paths?"
@@ -399,7 +398,7 @@ def UHF_measure_demod(Num_of_TC = 3, demod_c = 0, out_c = 0):
     sample_mean = np.mean(sample_r)  # Mean value of recorded data vector
     measured_ac_conductance = sample_mean/out_ampl
   
-    return measured_ac_conductance 
+    return measured_ac_conductance
 
 
 

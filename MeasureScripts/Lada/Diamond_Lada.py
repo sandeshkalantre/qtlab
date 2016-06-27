@@ -1,6 +1,7 @@
 from numpy import pi, random, arange, size
 from time import time,sleep
 import datetime
+import convert_for_diamond_plot as cnv
 
 #####################################################
 # this part is to simulate some data, you can skip it
@@ -12,15 +13,21 @@ import datetime
 #####################################################
 # here is where the actual measurement program starts
 #####################################################
-IVVI = qt.instruments.create('DAC','IVVI',interface = 'COM4')
+IVVI = qt.instruments.create('DAC','IVVI',interface = 'COM4', polarity=['BIP', 'POS', 'POS', 'BIP'], numdacs=16)
 dmm = qt.instruments.create('dmm','a34410a', address = 'USB0::0x0957::0x0607::MY53003401::INSTR')
+dmm.set_NPLC = 1  # Setting PLCs of dmm
 
-gain = 1e9 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for 1G
+file_name = '5-24 gate vs gate, sensor jumping, bias=300uV'
+
+gain = 100e6 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for 1G
 
 # you define two vectors of what you want to sweep. In this case
 # a magnetic field (b_vec) and a frequency (f_vec)
-v1_vec = arange(130,40,-0.06)     #V_g
-v2_vec = arange(-4,3,0.06)  #V_sd 
+
+
+
+v1_vec = arange(3900,0,-1)     #V_g
+v2_vec = arange(3000,2500,-1)  #V_sd 
 
 
 
@@ -35,7 +42,7 @@ qt.mstart()
 # and will be called:
 # <timestamp>_testmeasurement.dat
 # to find out what 'datadir' is set to, type: qt.config.get('datadir')
-data = qt.Data(name='13-18_diamond')
+data = qt.Data(name=file_name)
 
 # Now you provide the information of what data will be saved in the
 # datafile. A distinction is made between 'coordinates', and 'values'.
@@ -52,6 +59,8 @@ data.add_value('Current [pA]')
 # on the information provided above. Additionally a settingsfile
 # is created containing the current settings of all the instruments.
 data.create_file()
+
+data_path = data.get_dir()
 
 # Next two plot-objects are created. First argument is the data object
 # that needs to be plotted. To prevent new windows from popping up each
@@ -75,7 +84,7 @@ for v1 in v1_vec:
     
     start = time()
     # set the voltage
-    IVVI.set_dac1(v1)
+    IVVI.set_dac7(v1)
 
 
     for v2 in v2_vec:
@@ -108,7 +117,8 @@ for v1 in v1_vec:
 print 'Overall duration: %s sec' % (stop - init_start, )
 
    
-
+# Converting the output file into matrix format which can be read with Diamond plot tool. It is in the same folder as original file.   
+#cnv.convert_to_matrix_file(fname = file_name, path = data_path)
 
 # after the measurement ends, you need to close the data file.
 data.close_file()
