@@ -251,6 +251,11 @@ class Window:
         AWG.set_ch2_amplitude(self.max_amp_hard) 
         AWG.set_ch3_amplitude(self.max_amp_hard) 
         AWG.set_ch4_amplitude(self.max_amp_hard) 
+
+        AWG.set_ch1_skew(0)
+        AWG.set_ch2_skew(0)
+        AWG.set_ch3_skew(0)
+        AWG.set_ch4_skew(0)
    
         
         AWG.del_waveform_all()  # Clear all waveforms in waveform list
@@ -306,6 +311,50 @@ class Window:
             self.set_channel_status("ON",4)
         else:
             self.set_channel_status("OFF",4)
+
+    def on_skew_set1_clicked(self,button,data=None):
+        skew_entry = self.builder.get("skew_entry1")
+        val = float(skew_entry.get_text())
+        AWG.set_ch1_skew(val)
+        print "CH1 skew set to",val,"ps."
+
+    def on_skew_set2_clicked(self,button,data=None):
+        skew_entry = self.builder.get("skew_entry2")
+        val = float(skew_entry.get_text())
+        AWG.set_ch2_skew(val)
+        print "CH2 skew set to",val,"ps."
+
+    def on_skew_set3_clicked(self,button,data=None):
+        skew_entry = self.builder.get("skew_entry3")
+        val = float(skew_entry.get_text())
+        AWG.set_ch3_skew(val)
+        print "CH3 skew set to",val,"ps."
+
+    def on_skew_set4_clicked(self,button,data=None):
+        skew_entry = self.builder.get("skew_entry4")
+        val = float(skew_entry.get_text())
+        AWG.set_ch4_skew(val)
+        print "CH4 skew set to",val,"ps."
+
+    def on_skew_get1_clicked(self,button,data=None):
+        skew_entry = self.builder.get("skew_entry1")
+        val = AWG.get_ch1_skew()
+        skew_entry.set_text(str(val))  
+        
+    def on_skew_get2_clicked(self,button,data=None):
+        skew_entry = self.builder.get("skew_entry2")
+        val = AWG.get_ch2_skew()
+        skew_entry.set_text(str(val))    
+
+    def on_skew_get3_clicked(self,button,data=None):
+        skew_entry = self.builder.get("skew_entry3")
+        val = AWG.get_ch3_skew()
+        skew_entry.set_text(str(val))    
+
+    def on_skew_get4_clicked(self,button,data=None):
+        skew_entry = self.builder.get("skew_entry4")
+        val = AWG.get_ch4_skew()
+        skew_entry.set_text(str(val))          
 
     def on_window1_destroy(self, object, data=None):
         print "AWG GUI closed with cancel button."

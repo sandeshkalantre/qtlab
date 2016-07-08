@@ -124,6 +124,9 @@ class Tektronix_AWG5014(Instrument):
         self.add_parameter('status', type=types.StringType,
             flags=Instrument.FLAG_GETSET | Instrument.FLAG_GET_AFTER_SET,
             channels=(1, 4),channel_prefix='ch%d_')
+        self.add_parameter('skew', type=types.FloatType,
+            flags=Instrument.FLAG_GETSET | Instrument.FLAG_GET_AFTER_SET,
+            channels=(1, 4), minval=-100, maxval=100, units='ps', channel_prefix='ch%d_')
 
         # Add functions
         self.add_function('reset')
@@ -831,6 +834,34 @@ class Tektronix_AWG5014(Instrument):
         '''
         logging.debug(__name__ + ' : Set offset of channel %s to %.6f' % (channel, offset))
         self._visainstrument.write('SOUR%s:VOLT:LEV:IMM:OFFS %.6f' % (channel, offset))
+
+    def do_get_skew(self, channel):
+        '''
+        Reads the skew of the designated channel of the instrument
+
+        Input:
+            channel (int) : 1 or 2, the number of the designated channel
+
+        Output:
+            offset (float) : skew of designated channel in picoseconds
+        '''
+        logging.debug(__name__ + ' : Get skew of channel %s' % channel)
+        return 1e12 * float(self._visainstrument.ask('SOUR%s:SKEW?' % channel))
+
+    def do_set_skew(self, skew, channel):
+        '''
+        Sets the offset of the designated channel of the instrument
+
+        Input:
+            offset (float) : skew in picoseconds
+            channel (int)  : 1 or 2, the number of the designated channel
+
+        Output:
+            None
+        '''
+        logging.debug(__name__ + ' : Set skew of channel %s to %.6f' % (channel, skew))
+        self._visainstrument.write('SOUR%s:SKEW %.6f' % (channel, skew))
+
 
     def do_get_marker1_low(self, channel):
         '''
