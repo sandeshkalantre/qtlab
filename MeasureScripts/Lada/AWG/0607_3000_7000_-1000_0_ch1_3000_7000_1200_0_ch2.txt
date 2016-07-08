@@ -1,0 +1,7 @@
+num_seg 2
+time_units ms
+amp_units mV
+awg_clock 100000000.0
+max_amp 4.0
+1 3000 -1000 L L 1200 L L 0 L L 0 L L 
+2 7000 0 L L 0 L L 0 L L 0 L L 

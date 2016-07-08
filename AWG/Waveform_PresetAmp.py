@@ -258,7 +258,7 @@ class Pulse():
             
         
     def plotWaveform(self, Name = None):    # IN PROGRESS... 
-        #return    # Just to skip plotting                        # DELETE THIS LINE AFTER! 
+        return    # Just to skip plotting                        # DELETE THIS LINE AFTER! 
         if type(Name) is str:    
             plt.figure(Name)
         else:

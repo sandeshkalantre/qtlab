@@ -408,10 +408,10 @@ def UHF_measure_demod(Num_of_TC = 3, out_c = 0):
     
     
     
-    #sample_mean = np.mean(sample_r)  # Mean value of recorded data vector
-    #measured_ac_conductance = sample_mean/out_ampl
+    sample_mean = np.mean(sample_r)  # Mean value of recorded data vector
+    measured_ac_conductance = sample_mean/out_ampl
   
-    #return measured_ac_conductance
+    return measured_ac_conductance
 
 
 
