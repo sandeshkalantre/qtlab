@@ -27,7 +27,7 @@ if 'AWG' in locals():
     AWG._ins._visainstrument.close()   # Trying to close previous AWG session. 
 
 try:
-    AWG = qt.instruments.create('AWG', 'Tektronix_AWG5014', address="10.21.64.114")
+    AWG = qt.instruments.create('AWG', 'Tektronix_AWG5014', address="10.21.64.117")
 except Exception,e:
     print "Failed to connect to AWG."
     raise e

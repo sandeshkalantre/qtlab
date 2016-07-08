@@ -93,7 +93,7 @@ class Tektronix_AWG5014(Instrument):
             minval=-5, maxval=5, units='Volts')
         self.add_parameter('clock', type=types.FloatType,
             flags=Instrument.FLAG_GETSET | Instrument.FLAG_GET_AFTER_SET,
-            minval=1e6, maxval=1e9, units='Hz')
+            minval=1e7, maxval=1e9, units='Hz')
         self.add_parameter('numpoints', type=types.IntType,
             flags=Instrument.FLAG_GETSET | Instrument.FLAG_GET_AFTER_SET,
             minval=100, maxval=1e9, units='Int')
