@@ -1,13 +1,15 @@
 from numpy import pi, random, arange, size
 from time import time,sleep
+#import UHFLI_lib
 import datetime
+import convert_for_diamond_plot as cnv
 
 
 
 #####################################################
 # here is where the actual measurement program starts
 #####################################################
-IVVI = qt.instruments.create('DAC','IVVI',interface = 'COM4') # Initialize IVVI
+IVVI = qt.instruments.create('DAC','IVVI',interface = 'COM4', polarity=['BIP', 'POS', 'BIP', 'BIP'], numdacs=16) # Initialize IVVI
 UHFLI_lib.UHF_init_demod()  # Initialize UHF LI
 dmm = qt.instruments.create('dmm','a34410a', address = 'USB0::0x0957::0x0607::MY53003401::INSTR')
 
@@ -16,8 +18,8 @@ gain = 1e6 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for
 
 # you define two vectors of what you want to sweep. In this case
 # a magnetic field (b_vec) and a frequency (f_vec)
-v1_vec = arange(-600,0,0.5)  #V_g
-v2_vec = arange(-1000,1000,1) #V_sd
+v1_vec = arange(4000,3999,-1)  #V_g
+v2_vec = arange(-500,500,2) #V_sd
 
 
 
@@ -33,9 +35,15 @@ qt.mstart()
 # <timestamp>_testmeasurement.dat
 # to find out what 'datadir' is set to, type: qt.config.get('datadir')
 
-data_ac = qt.Data(name='13-18 lockin') #just renamed
+#fname_ac = '5-24 lockin'
+#fname_dc = '5-24 dc'
 
-data_dc = qt.Data(name='13-18 dc') #added to have current recored as well
+data_ac = qt.Data(name='5-24 lockin') #just renamed
+
+data_dc = qt.Data(name='5-24 dc') #added to have current recored as well
+
+data_path_ac = data_ac.get_dir()
+data_path_dc = data_dc.get_dir()
 
 # Now you provide the information of what data will be saved in the
 # datafile. A distinction is made between 'coordinates', and 'values'.
@@ -88,8 +96,11 @@ for v1 in v1_vec:
         IVVI.set_dac1(v2)
 
         # readout
-        result_ac = UHFLI_lib.UHF_measure_demod(Num_of_TC = 5)/gain  # Reading the lockin and correcting for M1b gain
+        result_ac = UHFLI_lib.UHF_measure_demod(Num_of_TC = 0.25, demod_c = 0, out_c = 0)/gain  # Reading the lockin and correcting for M1b gain
         result_dc = dmm.get_readval()/gain*1e12
+
+        print result_ac, result_dc
+
     
         # save the data point to the file, this will automatically trigger
         # the plot windows to update
@@ -120,7 +131,8 @@ for v1 in v1_vec:
 print 'Overall duration: %s sec' % (stop - init_start, )
 
    
-
+#cnv.convert_to_matrix_file(fname = fname_ac, path = data_path_ac)
+#cnv.convert_to_matrix_file(fname = fname_dc, path = data_path_dc)
 
 # after the measurement ends, you need to close the data file.
 data_ac.close_file()
