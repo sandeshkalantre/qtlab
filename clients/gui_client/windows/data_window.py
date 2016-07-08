@@ -256,7 +256,8 @@ class DataWindow(qtwindow.QTWindow):
             raise ValueError("No file selected. Please select a file before plotting.")
         for fn in files:
             fullfn = self._entry_map[fn].get_filename()
-            cmd = "qt.plot3(qt.Data(%r), name=%r, style=%r,  coorddims=(1,0), valdim=2, ofs=%r, traceofs=%r, clear=%r, ret=False)" % (fullfn, name, style,  ofs, traceofs, clear);
+            cmd = "qt.Plot3D(qt.Data(%r), name='Plot3D', coorddims=(1,0), valdim=2, style='image')" % (fullfn);
+            #cmd = "qt.plot3(qt.Data(%r), name=%r, style=%r,  coorddims=(1,0), valdim=2, ofs=%r, traceofs=%r, clear=%r, ret=False)" % (fullfn, name, style,  ofs, traceofs, clear);
             qt.interpreter.cmd(cmd, callback=lambda x: self._plot3d_button.set_sensitive(True))
 
     #def _clear_clicked_cb(self, sender):
