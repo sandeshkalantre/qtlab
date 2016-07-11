@@ -114,6 +114,7 @@ class Pulse():
             Every time some of these values are changed this function makes new pulse if their lengths are the same.
         
         '''
+        import pdb; pdb.set_trace()
         if not(len(self.amplitudes)==len(self.timings)==len(self.marker1_dict)==len(self.marker2_dict)):  # Do modification only if all of these are of the same length - SYNCHRONIZATION
             return 0
         
@@ -142,6 +143,7 @@ class Pulse():
         
         
     def rescaleLength(self, inp_time):  # Function for rescaling length depending on AWG period and selected time units
+        self.AWG_period = 1.0/self.AWG_clock
         Length = int(inp_time*self.TimeUnits/self.AWG_period)   # Changed 09.03_13:31
         if Length < 5:                                          # Changed 09.03_13:31
             raise Exception('AWG sampling rate too small')    # Changed 09.03_13:31

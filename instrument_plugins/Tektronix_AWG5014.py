@@ -860,7 +860,7 @@ class Tektronix_AWG5014(Instrument):
             None
         '''
         logging.debug(__name__ + ' : Set skew of channel %s to %.6f' % (channel, skew))
-        self._visainstrument.write('SOUR%s:SKEW %.6f' % (channel, skew))
+        self._visainstrument.write('SOUR%s:SKEW %.6fPS' % (channel, skew))
 
 
     def do_get_marker1_low(self, channel):

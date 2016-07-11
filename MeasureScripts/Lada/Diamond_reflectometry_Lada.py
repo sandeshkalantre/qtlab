@@ -16,7 +16,7 @@ import UHFLI_lib
 UHFLI_lib.UHF_init_demod(demod_c = 3)  # Initialize UHF LI
 
 
-file_name = '5-24 gate vs gate 80uV -45dBm 1MHz order 2 zoomin'
+file_name = '5-24 gate vs gate 80uV -45dBm 100Hz locating'
 
 gain = 1e9 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for 1G
 
@@ -26,8 +26,8 @@ gain = 1e9 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for
 gain_Lockin = 1 # Conversion factor for the Lockin
 
 
-v1_vec = arange(1949,1960,0.2)     #V_g
-v2_vec = arange(2315,2280,-0.2)  #V_sd 
+v1_vec = arange(1900,2300,0.5)     #V_g
+v2_vec = arange(2400,2200,-0.5)  #V_sd 
 
 
 # you indicate that a measurement is about to start and other

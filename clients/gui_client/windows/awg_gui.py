@@ -252,10 +252,10 @@ class Window:
         AWG.set_ch3_amplitude(self.max_amp_hard) 
         AWG.set_ch4_amplitude(self.max_amp_hard) 
 
-        AWG.set_ch1_skew(0)
-        AWG.set_ch2_skew(0)
-        AWG.set_ch3_skew(0)
-        AWG.set_ch4_skew(0)
+        #AWG.set_ch1_skew(0.0)
+        #AWG.set_ch2_skew(0.0)
+        #AWG.set_ch3_skew(0.0)
+        #AWG.set_ch4_skew(0.0)
    
         
         AWG.del_waveform_all()  # Clear all waveforms in waveform list
@@ -313,46 +313,46 @@ class Window:
             self.set_channel_status("OFF",4)
 
     def on_skew_set1_clicked(self,button,data=None):
-        skew_entry = self.builder.get("skew_entry1")
+        skew_entry = self.builder.get_object("skew_entry1")
         val = float(skew_entry.get_text())
-        AWG.set_ch1_skew(val)
-        print "CH1 skew set to",val,"ps."
+        if AWG.set_ch1_skew(val):
+            print "CH1 skew set to",val,"ps."
 
     def on_skew_set2_clicked(self,button,data=None):
-        skew_entry = self.builder.get("skew_entry2")
+        skew_entry = self.builder.get_object("skew_entry2")
         val = float(skew_entry.get_text())
-        AWG.set_ch2_skew(val)
-        print "CH2 skew set to",val,"ps."
+        if AWG.set_ch2_skew(val):
+            print "CH2 skew set to",val,"ps."
 
     def on_skew_set3_clicked(self,button,data=None):
-        skew_entry = self.builder.get("skew_entry3")
+        skew_entry = self.builder.get_object("skew_entry3")
         val = float(skew_entry.get_text())
-        AWG.set_ch3_skew(val)
-        print "CH3 skew set to",val,"ps."
+        if AWG.set_ch3_skew(val):
+            print "CH3 skew set to",val,"ps."
 
     def on_skew_set4_clicked(self,button,data=None):
-        skew_entry = self.builder.get("skew_entry4")
+        skew_entry = self.builder.get_object("skew_entry4")
         val = float(skew_entry.get_text())
-        AWG.set_ch4_skew(val)
-        print "CH4 skew set to",val,"ps."
+        if AWG.set_ch4_skew(val):
+            print "CH4 skew set to",val,"ps."
 
     def on_skew_get1_clicked(self,button,data=None):
-        skew_entry = self.builder.get("skew_entry1")
+        skew_entry = self.builder.get_object("skew_entry1")
         val = AWG.get_ch1_skew()
         skew_entry.set_text(str(val))  
         
     def on_skew_get2_clicked(self,button,data=None):
-        skew_entry = self.builder.get("skew_entry2")
+        skew_entry = self.builder.get_object("skew_entry2")
         val = AWG.get_ch2_skew()
         skew_entry.set_text(str(val))    
 
     def on_skew_get3_clicked(self,button,data=None):
-        skew_entry = self.builder.get("skew_entry3")
+        skew_entry = self.builder.get_object("skew_entry3")
         val = AWG.get_ch3_skew()
         skew_entry.set_text(str(val))    
 
     def on_skew_get4_clicked(self,button,data=None):
-        skew_entry = self.builder.get("skew_entry4")
+        skew_entry = self.builder.get_object("skew_entry4")
         val = AWG.get_ch4_skew()
         skew_entry.set_text(str(val))          
 
@@ -391,7 +391,7 @@ class Window:
     def on_awg_clock_set_clicked(self,button,data=None):
         self.awg_clock_entry = self.builder.get_object("awg_clock_entry")
         self.awg_clock = float(self.awg_clock_entry.get_text())
-        self.wav_obj.AWG_clock = self.awg_clock
+        self.wav_obj.setAWG_clock(self.awg_clock)
         #print "AWG Clock set to",self.awg_clock
         self.statusbar.push(self.context_id, "No. of Segments: " + str(self.num_seg) + " | Time Units: " + str(self.time_units) +  " | Amplitude Units: " + str(self.amp_units) + " | AWG Clock: " + str(self.awg_clock) + " | Max. Amplitude: " + str(self.max_amp)) 
         #only the set hard buttons change on the hardware
@@ -413,9 +413,9 @@ class Window:
         self.awg_clock_entry_hard = self.builder.get_object("awg_clock_entry_hard")
         self.awg_clock_hard = float(self.awg_clock_entry_hard.get_text())
         print "AWG Clock set to",self.awg_clock_hard
-        AWG.set_clock(self.awg_clock_hard)  # Set AWG clock
-        label = self.builder.get_object("awg_settings_label")
-        label.set_text("AWG Settings \n\n" + "AWG Clock : " + str(self.awg_clock_hard/1e6) + " MHz\n" + "Maximum Amplitude : " + str(self.max_amp_hard) + " V\n" + "Run Mode : " + str(self.runmode) + "\n")
+        if AWG.set_clock(self.awg_clock_hard):  # Set AWG clock
+            label = self.builder.get_object("awg_settings_label")
+            label.set_text("AWG Settings \n\n" + "AWG Clock : " + str(self.awg_clock_hard/1e6) + " MHz\n" + "Maximum Amplitude : " + str(self.max_amp_hard) + " V\n" + "Run Mode : " + str(self.runmode) + "\n")
     
     def on_max_amp_set_hard_clicked(self,button,data=None):
         self.max_amp_entry_hard = self.builder.get_object("max_amp_entry_hard")

@@ -16,6 +16,9 @@ from time import time,sleep
 #dmm = qt.instruments.create('dmm','a34410a', address = 'USB0::0x0957::0x0607::MY53003401::INSTR')
 
 gain = 1e9 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for 1G
+Lockin_gain = 2000
+Siemens_to_e2h = 38.74 # Tranformation uS to e^2/h
+dV = 4  # Always in uV 
 
 
 bias = 80
@@ -24,7 +27,7 @@ leak_test = True
 
 # you define two vectors of what you want to sweep. In this case
 # a magnetic field (b_vec) and a frequency (f_vec)
-v_vec = arange(2152,0,-1)
+v_vec = arange(2280,2270,-0.1)
 
 
 
@@ -39,7 +42,7 @@ qt.mstart()
 # and will be called:
 # <timestamp>_testmeasurement.dat
 # to find out what 'datadir' is set to, type: qt.config.get('datadir')
-data = qt.Data(name='5-24 sweeping dot gate to zero_Josip')
+data = qt.Data(name='5-24 IVG test SET, sweeping sensor gate_Josip')
 
 
 # Now you provide the information of what data will be saved in the
@@ -51,7 +54,7 @@ data = qt.Data(name='5-24 sweeping dot gate to zero_Josip')
 # If you don't supply it, the data class will guess your data format.
 data.add_coordinate('Voltage [mV]')
 
-data.add_value('Current [pA]')
+data.add_value('AC Conductance [e^2/h]')
 
 # The next command will actually create the dirs and files, based
 # on the information provided above. Additionally a settingsfile
@@ -63,7 +66,7 @@ data.create_file()
 # measurement a 'name' can be provided so that window can be reused.
 # If the 'name' doesn't already exists, a new window with that name
 # will be created. For 3d plots, a plotting style is set.
-plot2d = qt.Plot2D(data, name='plot10', autoupdate=False)
+plot2d = qt.Plot2D(data, name='plot8', autoupdate=False)
 plot2d.set_style('lines')
 
 
@@ -75,9 +78,9 @@ IVVI.set_dac1(bias)
 start = time()
 for v in v_vec:
     # set the voltage
-    IVVI.set_dac7(v)
+    IVVI.set_dac5(v)
     # readout
-    result = dmm.get_readval()/(gain)*1e12 # Remove Lockin gain if you are not measuring with it
+    result = dmm.get_readval()/(gain*Lockin_gain*dV*Siemens_to_e2h)*1e12 # Remove Lockin gain if you are not measuring with it
 
     # save the data point to the file, this will automatically trigger
     # the plot windows to update

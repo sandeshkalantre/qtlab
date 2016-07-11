@@ -102,7 +102,6 @@
                 <child>
                   <object class="GtkButton" id="awg_clock_set_hard">
                     <property name="label" translatable="yes">Set</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -147,7 +146,6 @@
                 <child>
                   <object class="GtkButton" id="max_amp_set_hard">
                     <property name="label" translatable="yes">Set</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -189,7 +187,6 @@
                 <child>
                   <object class="GtkButton" id="set_awg_runmode_hard">
                     <property name="label" translatable="yes">Set</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -233,7 +230,6 @@
                     <property name="n_columns">5</property>
                     <child>
                       <object class="GtkCheckButton" id="ch1_status_button">
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -248,7 +244,6 @@
                     </child>
                     <child>
                       <object class="GtkCheckButton" id="ch2_status_button">
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -263,7 +258,6 @@
                     </child>
                     <child>
                       <object class="GtkCheckButton" id="ch3_status_button">
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -278,7 +272,6 @@
                     </child>
                     <child>
                       <object class="GtkCheckButton" id="ch4_status_button">
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -346,6 +339,9 @@
                         <property name="top_attach">3</property>
                         <property name="bottom_attach">4</property>
                       </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
                     </child>
                     <child>
                       <object class="GtkEntry" id="skew_entry1">
@@ -418,7 +414,6 @@
                     <child>
                       <object class="GtkButton" id="skew_set1">
                         <property name="label" translatable="yes">Set</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -429,12 +424,12 @@
                         <property name="right_attach">4</property>
                         <property name="top_attach">1</property>
                         <property name="bottom_attach">2</property>
+                        <property name="y_options">GTK_FILL</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkButton" id="skew_get1">
                         <property name="label" translatable="yes">Get</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -445,12 +440,12 @@
                         <property name="right_attach">5</property>
                         <property name="top_attach">1</property>
                         <property name="bottom_attach">2</property>
+                        <property name="y_options">GTK_FILL</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkButton" id="skew_set2">
                         <property name="label" translatable="yes">Set</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -461,12 +456,12 @@
                         <property name="right_attach">4</property>
                         <property name="top_attach">2</property>
                         <property name="bottom_attach">3</property>
+                        <property name="y_options">GTK_FILL</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkButton" id="skew_get2">
                         <property name="label" translatable="yes">Get</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -477,12 +472,12 @@
                         <property name="right_attach">5</property>
                         <property name="top_attach">2</property>
                         <property name="bottom_attach">3</property>
+                        <property name="y_options">GTK_FILL</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkButton" id="skew_get3">
                         <property name="label" translatable="yes">Get</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -493,12 +488,12 @@
                         <property name="right_attach">5</property>
                         <property name="top_attach">3</property>
                         <property name="bottom_attach">4</property>
+                        <property name="y_options">GTK_FILL</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkButton" id="skew_set3">
                         <property name="label" translatable="yes">Set</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -509,12 +504,12 @@
                         <property name="right_attach">4</property>
                         <property name="top_attach">3</property>
                         <property name="bottom_attach">4</property>
+                        <property name="y_options">GTK_FILL</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkButton" id="skew_set4">
                         <property name="label" translatable="yes">Set</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -525,12 +520,15 @@
                         <property name="right_attach">4</property>
                         <property name="top_attach">4</property>
                         <property name="bottom_attach">5</property>
+                        <property name="y_options">GTK_FILL</property>
                       </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
                     </child>
                     <child>
                       <object class="GtkButton" id="skew_get4">
                         <property name="label" translatable="yes">Get</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -541,7 +539,11 @@
                         <property name="right_attach">5</property>
                         <property name="top_attach">4</property>
                         <property name="bottom_attach">5</property>
+                        <property name="y_options">GTK_FILL</property>
                       </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
                     </child>
                     <child>
                       <placeholder/>
@@ -580,7 +582,6 @@
                     <child>
                       <object class="GtkButton" id="awg_run_hard">
                         <property name="label" translatable="yes">Run</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -596,7 +597,6 @@
                     <child>
                       <object class="GtkButton" id="awg_stop_hard">
                         <property name="label" translatable="yes">Stop</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -621,22 +621,6 @@
                 <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="position">4</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkEntry" id="entry4">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="invisible_char">●</property>
-                <property name="primary_icon_activatable">False</property>
-                <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">5</property>
               </packing>
             </child>
           </object>
@@ -690,6 +674,18 @@
                     <property name="n_rows">8</property>
                     <property name="n_columns">3</property>
                     <property name="homogeneous">True</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
                     <child>
                       <object class="GtkLabel" id="label17">
                         <property name="visible">True</property>
@@ -772,7 +768,6 @@
                     <child>
                       <object class="GtkButton" id="num_seg_set">
                         <property name="label" translatable="yes">Set</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -861,7 +856,6 @@
                     <child>
                       <object class="GtkButton" id="awg_clock_set">
                         <property name="label" translatable="yes">Set</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -877,7 +871,6 @@
                     <child>
                       <object class="GtkButton" id="max_amp_set">
                         <property name="label" translatable="yes">Set</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -893,7 +886,6 @@
                     <child>
                       <object class="GtkButton" id="load_waveform">
                         <property name="label" translatable="yes">Load Waveform</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -903,7 +895,6 @@
                     <child>
                       <object class="GtkButton" id="save_waveform">
                         <property name="label" translatable="yes">Save Waveform</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -958,18 +949,6 @@
                         <property name="top_attach">1</property>
                         <property name="bottom_attach">2</property>
                       </packing>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
                     </child>
                   </object>
                   <packing>
@@ -1068,7 +1047,6 @@
                         <child>
                           <object class="GtkButton" id="plot1">
                             <property name="label" translatable="yes">Plot</property>
-                            <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -1084,7 +1062,6 @@
                         <child>
                           <object class="GtkButton" id="plot2">
                             <property name="label" translatable="yes">Plot</property>
-                            <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -1100,7 +1077,6 @@
                         <child>
                           <object class="GtkButton" id="plot3">
                             <property name="label" translatable="yes">Plot</property>
-                            <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -1116,7 +1092,6 @@
                         <child>
                           <object class="GtkButton" id="plot4">
                             <property name="label" translatable="yes">Plot</property>
-                            <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -1207,7 +1182,6 @@
                 <child>
                   <object class="GtkButton" id="open_waveform1">
                     <property name="label" translatable="yes">Select Waveform - 1</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -1220,7 +1194,6 @@
                 <child>
                   <object class="GtkButton" id="open_waveform2">
                     <property name="label" translatable="yes">Select Waveform- 2</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -1276,7 +1249,6 @@
                 <child>
                   <object class="GtkButton" id="set_num_ele">
                     <property name="label" translatable="yes">Set number of elements</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -1299,7 +1271,6 @@
             <child>
               <object class="GtkButton" id="gen_seq">
                 <property name="label" translatable="yes">Generate Sequence and Upload to AWG</property>
-                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>

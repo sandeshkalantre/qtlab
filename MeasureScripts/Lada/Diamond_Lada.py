@@ -13,21 +13,21 @@ import convert_for_diamond_plot as cnv
 #####################################################
 # here is where the actual measurement program starts
 #####################################################
-IVVI = qt.instruments.create('DAC','IVVI',interface = 'COM4', polarity=['BIP', 'POS', 'POS', 'BIP'], numdacs=16)
-dmm = qt.instruments.create('dmm','a34410a', address = 'USB0::0x0957::0x0607::MY53003401::INSTR')
-dmm.set_NPLC = 1  # Setting PLCs of dmm
+#IVVI = qt.instruments.create('DAC','IVVI',interface = 'COM4', polarity=['BIP', 'POS', 'POS', 'BIP'], numdacs=16)
+#dmm = qt.instruments.create('dmm','a34410a', address = 'USB0::0x0957::0x0607::MY53003401::INSTR')
+#dmm.set_NPLC = 1  # Setting PLCs of dmm
 
-file_name = '5-24 gate vs gate, sensor jumping, bias=300uV'
+file_name = '5-24 gate vs gate UHFLI tests 80uV'
 
-gain = 100e6 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for 1G
+gain = 1e9 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for 1G
 
 # you define two vectors of what you want to sweep. In this case
 # a magnetic field (b_vec) and a frequency (f_vec)
 
 
 
-v1_vec = arange(1953,3500,0.5)     #V_g
-v2_vec = arange(2500,2350,-0.5)  #V_sd 
+v1_vec = arange(1900,2300,0.5)     #V_g
+v2_vec = arange(2400,2200,-0.5)  #V_sd 
 
 
 
