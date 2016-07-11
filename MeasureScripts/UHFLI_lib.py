@@ -16,7 +16,7 @@ import zhinst.ziPython as ziPython
 def UHF_init_scope(device_id = 'dev2148'):
     
     """
-    Connecting to the device specified by device_id and setting initial parameters 
+    Connecting to the device specified by device_id and setting initial parameters through LabOne GUI
     
 
 
@@ -98,7 +98,7 @@ def UHF_measure_scope(device_id = 'dev2148', maxtime = 5):
 
     """
     Obtaining data from UHF LI using ziDAQServer's blocking (synchronous) poll() command
-    Acessing to UHF LI is done by global variable daq and device defined in UHF_init function
+    Acessing to UHF LI is done by global variable daq and device defined in UHF_init_scope function
 
    
 
@@ -225,7 +225,7 @@ def UHF_measure_scope(device_id = 'dev2148', maxtime = 5):
 def UHF_init_demod(device_id = 'dev2148', demod_c = 0, out_c = 0):
     
     """
-    Connecting to the device specified by device_id and setting initial parameters
+    Connecting to the device specified by device_id and setting initial parameters through LabOne GUI
     
 
 
@@ -233,8 +233,9 @@ def UHF_init_demod(device_id = 'dev2148', demod_c = 0, out_c = 0):
         
 
       device_id (str): The ID of the device to run the example with. For
-        example, 'dev2148'.
-
+					   example, 'dev2148'.
+      demod_c (int): One of {0 - 7} demodulators of UHF LI 
+      out_c (int): One of {0,1} output channels of UHF LI
 
 
     Raises:
@@ -341,24 +342,22 @@ def UHF_init_demod(device_id = 'dev2148', demod_c = 0, out_c = 0):
             
 
 
-def UHF_measure_demod(Num_of_TC = 3, out_c = 0):
+def UHF_measure_demod(Num_of_TC = 3):
 
 
     """
     Obtaining data from UHF LI demodulator using ziDAQServer's blocking (synchronous) poll() command
-    Acessing to UHF LI is done by global variable daq and device defined in UHF_init function
+    Acessing to UHF LI is done by global variable daq and device defined in UHF_init_demod function
 
    
 
     Arguments:
-
-      demod_c (int): One of {0 - 7} demodulators of UHF LI 
-      out_c (int): One of {0,1} output channels of UHF LI
+	  Num_of_TC(int) - Number of time constant to wait before the measurement
+      
 
     Returns:
 
-      measured_ac_conductance (float): Division between output voltage RMS value and acqired samples mean value (assumed as current).
-        Needs to be corrected with appropriate constant in user script. 
+      sample_mean (float): Mean value of recorded samples (default 1000) as R (amplitude) value of input  
 
     Raises:
 
@@ -409,75 +408,10 @@ def UHF_measure_demod(Num_of_TC = 3, out_c = 0):
     
     
     sample_mean = np.mean(sample_r)  # Mean value of recorded data vector
-    measured_ac_conductance = sample_mean/out_ampl
+    #measured_ac_conductance = sample_mean/out_ampl
   
-    return measured_ac_conductance
+    return sample_mean
 
-
-
-def UHF_measure_refl(Num_of_TC = 3, demod_c = 0, out_c = 0):
-
-    """
-    Obtaining data from UHF LI demodulator using ziDAQServer's blocking (synchronous) poll() command
-    Acessing to UHF LI is done by global variable daq and device defined in UHF_init function
-
-   
-
-    Arguments:
-
-      demod_c (int): One of {0 - 7} demodulators of UHF LI 
-      out_c (int): One of {0,1} output channels of UHF LI
-
-    Returns:
-
-      reflectometry signal (float)
-
-    Raises:
-
-      RuntimeError: If the device is not connected to the Data Server.
-    """
-
-    
-    
-    path = path_demod
-
-    # Poll data parameters
-    poll_length = 0.001  # [s]
-    poll_timeout = 500  # [ms]
-    poll_flags = 0
-    poll_return_flat_dict = True 
-
-    
-
-    #START MEASURE
-
-    # Wait for the demodulator filter to settle
-    time.sleep(Num_of_TC*TC)
-
-    data = daq.poll(poll_length, poll_timeout, poll_flags, poll_return_flat_dict)  # Readout from subscribed node (demodulator)
-    
-    #END OF MEASURE
-    
-
-    # Check the dictionary returned is non-empty
-    assert data, "poll() returned an empty data dictionary, did you subscribe to any paths?"
-    # Note, the data could be empty if no data arrived, e.g., if the demods were
-    # disabled or had demodulator rate 0
-    assert path in data, "data dictionary has no key '%s'" % path
-    # The data returned is a dictionary of dictionaries that reflects the node's path
-
-
-    sample = data[path]
-    sample_x = np.array(sample['x'])    # Converting samples to numpy arrays for faster calculation
-    sample_y = np.array(sample['y'])    # Converting samples to numpy arrays for faster calculation
-    sample_r = np.sqrt(sample_x**2 + sample_y**2)   # Calculating R value from X and Y values
-    
-    
-    
-    sample_mean = np.mean(sample_r)  # Mean value of recorded data vector
-    refl_sig = sample_mean
-  
-    return refl_sig 
 
 
 
