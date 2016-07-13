@@ -59,40 +59,51 @@ class AMI430(Instrument):
     BUFSIZE=1024    
     
     def __init__(self, name, address='10.21.64.152', port=7180):
-        
         Instrument.__init__(self, name, tags=['measure'])
         
         #self.add_parameter('pSwitch', type=types.BooleanType,
         #        flags=Instrument.FLAG_GETSET,
         #        format_map={False:'off',True:'on'})
-				
+                
         self.add_parameter('current', type=types.FloatType,
-                flags=Instrument.FLAG_GETSET,
+                flags=Instrument.FLAG_SET,
                 units='A',
                 minval=-self.CURRENTRATING, maxval=self.CURRENTRATING,
                 format='%.4f')
-				
+        self.add_parameter('current_get', type=types.FloatType,
+                flags=Instrument.FLAG_GET,
+                units='A',
+                format='%.4f')
+                
         self.add_parameter('field', type=types.FloatType,
-                flags=Instrument.FLAG_GETSET,
+                flags=Instrument.FLAG_SET,
                 units='T',
                 minval=-self.FIELDRATING, maxval=self.FIELDRATING,
+                format='%.5f')
+        self.add_parameter('field_get', type=types.FloatType,
+                flags=Instrument.FLAG_GET,
+                units='T',
                 format='%.5f')
 
         self.add_parameter('units', type=types.FloatType,
                 flags=Instrument.FLAG_GETSET,
-                format_map={0:'kG',1:'T'})			
+                format_map={0:'kG',1:'T'})          
 
 
-				
+                
         self.add_parameter('setPoint', type=types.FloatType,
                 flags=Instrument.FLAG_GET,
                 units='T',
                 format='%.6f')
         
-        self.add_parameter('rampRate', type=types.FloatType,
-                flags=Instrument.FLAG_GETSET,
+        self.add_parameter('rampRate_T_s', type=types.FloatType,
+                flags=Instrument.FLAG_SET,
                 units='T/s',
                 minval=0.0, maxval=self.FIELDRAMPLIMIT, format='%.5f')
+        self.add_parameter('rampRate_get_T_s', type=types.FloatType,
+                flags=Instrument.FLAG_GET,
+                units='T/s',
+                format='%.5f')
         
         self.add_parameter('rampState', type=types.IntType,
                 flags=Instrument.FLAG_GET,
@@ -111,8 +122,8 @@ class AMI430(Instrument):
         self.add_parameter('error', type=types.StringType,
                            flags=Instrument.FLAG_GET)
         
-        self.add_function('reset')
-        self.add_function('rampTo')
+        #self.add_function('reset')
+        #self.add_function('rampTo')
         self.add_function('resetQuench')
         self.add_function('setPause')
         
@@ -131,15 +142,15 @@ class AMI430(Instrument):
         pass
     
     def get_all(self):                                                   ### Run this command after interupted the measurements.
-        self.get_field()
-        self.get_current()		
+        self.get_field_get()
+        self.get_current_get()      
         self.get_rampState()
         #self.get_pSwitch()
-        self.get_rampRate()
+        self.get_rampRate_get_T_s()
         #self.get_persistent()
         self.get_quench()
         self.get_setPoint()
-        self.get_units()		
+        self.get_units()        
         
     #Low level functions to handle communication
     #should not be used directly
@@ -252,15 +263,17 @@ class AMI430(Instrument):
     
     ### Ramprate set and query ###
     ### Note: we only use a single segment that spawns over the entire field range ###
-    def do_get_rampRate(self):
+
+
+    def do_get_rampRate_get_T_s(self):
         return float(self._ask('RAMP:RATE:FIELD:1?\n').split(',',1)[0])     ##Max. current is also returned and has to be removed
     
-    def do_set_rampRate(self, value):
+    def do_set_rampRate_T_s(self, value):
         #self._send('CONF:RAMP:RATE:FIELD 1,%0.5f,self.FIELDRATING;'%value)        ##Note: max field has to be added to command
         self._send('CONF:RAMP:RATE:FIELD 1,'+str(value)+','+str(self.FIELDRATING)+'\n')        ##Note: max field has to be added to command    
     #### Field setting and readout #######
     ### Note: get_field always returns actual field, for reading setpoint, see get_setPoint
-    def do_get_field(self):                              
+    def do_get_field_get(self):                              
         self.get_rampState()                             ### update rampstate as well
         return float(self._ask('FIELD:MAG?\n'))    
 
@@ -272,12 +285,12 @@ class AMI430(Instrument):
             while math.fabs(value - self.get_field()) > self.MARGIN:
                 time.sleep(0.050)
 
-        return True		
+        return True     
 
-    def do_get_current(self):                              
+    def do_get_current_get(self):                              
         self.get_rampState()                             ### update rampstate as well
-        return float(self._ask('CURR:MAG?\n'))    		
-		
+        return float(self._ask('CURR:MAG?\n'))          
+        
     def do_set_current(self,value):                              ### Set current %0.5f
         self.setPause()
         self._send('CONF:CURR:TARG %0.5f ;'%value)
@@ -286,11 +299,11 @@ class AMI430(Instrument):
     ### Note: get_field always returns actual field, for reading setpoint, see get_setPoint
 
     def do_set_units(self,value):
-            self._send('CONF:FIELD:UNITS %d\n'%value)	
+            self._send('CONF:FIELD:UNITS %d\n'%value)   
 
     def do_get_units(self):
-            self._send(self._ask('FIELD:UNITS?\n'))	    	
-	
+            self._send(self._ask('FIELD:UNITS?\n'))         
+    
     def rampTo(self,value):
         if self._set_magnet_for_ramping() and value <= self.get_parameter_options('field')['maxval'] and value >= self.get_parameter_options('field')['minval']:
             self.setPause()
@@ -366,4 +379,5 @@ class AMI430(Instrument):
                     
                     
     def do_get_error(self):
-        return self._ask('SYST:ERR?\n').rstrip()
+        return self._ask('SYST:ERR?\n').rstrip() 
+       

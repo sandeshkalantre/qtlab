@@ -58,7 +58,7 @@ class AMI430_Bx(Instrument):
     #buffersize for socket
     BUFSIZE=1024    
     
-    def __init__(self, name, address='169.254.65.237', port=7180):
+    def __init__(self, name, address='10.21.64.194', port=7180):
         
         Instrument.__init__(self, name, tags=['measure'])
         
@@ -67,15 +67,23 @@ class AMI430_Bx(Instrument):
         #        format_map={False:'off',True:'on'})
 				
         self.add_parameter('current', type=types.FloatType,
-                flags=Instrument.FLAG_GETSET,
+                flags=Instrument.FLAG_SET,
                 units='A',
                 minval=-self.CURRENTRATING, maxval=self.CURRENTRATING,
                 format='%.4f')
+        self.add_parameter('current_get', type=types.FloatType,
+                flags=Instrument.FLAG_GET,
+                units='A',
+                format='%.4f')
 				
         self.add_parameter('field', type=types.FloatType,
-                flags=Instrument.FLAG_GETSET,
+                flags=Instrument.FLAG_SET,
                 units='T',
                 minval=-self.FIELDRATING, maxval=self.FIELDRATING,
+                format='%.5f')
+        self.add_parameter('field_get', type=types.FloatType,
+                flags=Instrument.FLAG_GET,
+                units='T',
                 format='%.5f')
 
         self.add_parameter('units', type=types.FloatType,
@@ -89,10 +97,14 @@ class AMI430_Bx(Instrument):
                 units='T',
                 format='%.6f')
         
-        self.add_parameter('rampRate', type=types.FloatType,
-                flags=Instrument.FLAG_GETSET,
+        self.add_parameter('rampRate_T_s', type=types.FloatType,
+                flags=Instrument.FLAG_SET,
                 units='T/s',
                 minval=0.0, maxval=self.FIELDRAMPLIMIT, format='%.5f')
+        self.add_parameter('rampRate_get_T_s', type=types.FloatType,
+                flags=Instrument.FLAG_GET,
+                units='T/s',
+                format='%.5f')
         
         self.add_parameter('rampState', type=types.IntType,
                 flags=Instrument.FLAG_GET,
@@ -111,8 +123,8 @@ class AMI430_Bx(Instrument):
         self.add_parameter('error', type=types.StringType,
                            flags=Instrument.FLAG_GET)
         
-        self.add_function('reset')
-        self.add_function('rampTo')
+        #self.add_function('reset')
+        #self.add_function('rampTo')
         self.add_function('resetQuench')
         self.add_function('setPause')
         
@@ -131,11 +143,11 @@ class AMI430_Bx(Instrument):
         pass
     
     def get_all(self):                                                   ### Run this command after interupted the measurements.
-        self.get_field()
-        self.get_current()		
+        self.get_field_get()
+        self.get_current_get()		
         self.get_rampState()
         #self.get_pSwitch()
-        self.get_rampRate()
+        self.get_rampRate_get_T_s()
         #self.get_persistent()
         self.get_quench()
         self.get_setPoint()
@@ -252,15 +264,17 @@ class AMI430_Bx(Instrument):
     
     ### Ramprate set and query ###
     ### Note: we only use a single segment that spawns over the entire field range ###
-    def do_get_rampRate(self):
+
+
+    def do_get_rampRate_get_T_s(self):
         return float(self._ask('RAMP:RATE:FIELD:1?\n').split(',',1)[0])     ##Max. current is also returned and has to be removed
     
-    def do_set_rampRate(self, value):
+    def do_set_rampRate_T_s(self, value):
         #self._send('CONF:RAMP:RATE:FIELD 1,%0.5f,self.FIELDRATING;'%value)        ##Note: max field has to be added to command
         self._send('CONF:RAMP:RATE:FIELD 1,'+str(value)+','+str(self.FIELDRATING)+'\n')        ##Note: max field has to be added to command    
     #### Field setting and readout #######
     ### Note: get_field always returns actual field, for reading setpoint, see get_setPoint
-    def do_get_field(self):                              
+    def do_get_field_get(self):                              
         self.get_rampState()                             ### update rampstate as well
         return float(self._ask('FIELD:MAG?\n'))    
 
@@ -274,7 +288,7 @@ class AMI430_Bx(Instrument):
 
         return True		
 
-    def do_get_current(self):                              
+    def do_get_current_get(self):                              
         self.get_rampState()                             ### update rampstate as well
         return float(self._ask('CURR:MAG?\n'))    		
 		

@@ -23,17 +23,21 @@ import qt
 
 import os
 import visa
-if 'AWG' in locals():
-    AWG._ins._visainstrument.close()   # Trying to close previous AWG session. 
 
-try:
-    AWG = qt.instruments.create('AWG', 'Tektronix_AWG5014', address="10.21.64.117")
-except Exception,e:
-    print "Failed to connect to AWG."
-    raise e
+
 
 class Window:
     def __init__(self):
+        if 'AWG' in locals():
+            AWG._ins._visainstrument.close()   # Trying to close previous AWG session. 
+
+        global AWG
+        try:
+            AWG = qt.instruments.create('AWG', 'Tektronix_AWG5014', address="10.21.64.117")
+        except Exception,e:
+            print "Failed to connect to AWG."
+            raise e
+
         #initializing the variables
         #default values
         #also change the set_active values to make change in GUI if changing the default values
@@ -357,6 +361,8 @@ class Window:
         skew_entry.set_text(str(val))          
 
     def on_window1_destroy(self, object, data=None):
+        AWG._ins._visainstrument.clear()
+        AWG._ins._visainstrument.close()   # Trying to close previous AWG session. 
         print "AWG GUI closed with cancel button."
         self.window.destroy()
         #gtk.main_quit()

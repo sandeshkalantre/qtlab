@@ -1,8 +1,8 @@
 # 04.05.2016. Added lines 82 to 89 - Uploading sequence to specified channel recognition
 
 
-import Tektronix_AWG5014 as ArbWG
-import InverseHPfilterSeq as INV   # ADDED
+#import Tektronix_AWG5014 as ArbWG
+#import InverseHPfilterSeq as INV   # ADDED
 import matplotlib.pyplot as plt
 import qt
 import re
@@ -15,11 +15,12 @@ import numpy as np
 
 
 
-if 'AWG' in locals():
-    AWG._ins._visainstrument.close()   # Trying to close previous AWG session. 
+#if 'AWG' in locals():
+    #AWG._ins._visainstrument.close()   # Trying to close previous AWG session. 
 
        
-AWG = qt.instruments.create('AWG', 'Tektronix_AWG5014', address='169.254.111.236')  # Changed
+#AWG = qt.instruments.create('AWG', 'Tektronix_AWG5014', address='169.254.111.236')  # Changed
+AWG = qt.instruments.get("AWG")
 
 
 
@@ -75,12 +76,14 @@ def set_waveform(seq,AWG_clock,AWGMax_amp,Seq_length):
     AWG.set_seq_length(Seq_length)  # Set wanted sequence length
     
     
+    seq = filter(None, seq)  # Remove all empty elements from list
+
     # Create the sequence from previously uploaded files for wanted channels 
     
     for ch in xrange(len(seq)):   # Iterating trough channels
         
         if 'CH1' in seq[ch][0].waveform_name:   # Checking to which channel sequence elements needs to be uploaded
-            channel = 1                         # by checking the name of first element dedicated to specified channel
+            channel = 1                        # by checking the name of first element dedicated to specified channel
         elif 'CH2' in seq[ch][0].waveform_name:
             channel = 2
         elif 'CH3' in seq[ch][0].waveform_name:
@@ -105,15 +108,15 @@ def set_waveform(seq,AWG_clock,AWGMax_amp,Seq_length):
                
                            
     #Turn on the AWG channels
-    AWG._ins.do_set_output(1,1)
-    AWG._ins.do_set_output(1,2)
-    AWG._ins.do_set_output(1,3)
-    AWG._ins.do_set_output(1,4)
+    #AWG._ins.do_set_output(1,1)
+    #AWG._ins.do_set_output(1,2)
+    #AWG._ins.do_set_output(1,3)
+    #AWG._ins.do_set_output(1,4)
     
     
     
     #Run
-    AWG.run()
+    #AWG.run()
      
     
     

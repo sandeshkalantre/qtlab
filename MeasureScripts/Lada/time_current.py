@@ -14,7 +14,7 @@ gain = 1e9 #Choose between: 1e6 for 1M, 10e6 for 10M, 100e6 for 100M and 1e9 for
 # interval betweeen each measurement [s]
 dt = 0.001
 #total time [s]
-T = 50
+T = 2
 
 N = int(T/dt)
 print "Number of  points",N

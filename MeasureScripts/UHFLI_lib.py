@@ -125,7 +125,7 @@ def UHF_measure_scope(device_id = 'dev2148', maxtime = 5):
     
     # Poll data parameters
     poll_length = 0.001  # [s]
-    poll_timeout = 500  # [ms]
+    poll_timeout = 4000  # [ms]
     poll_flags = 0
     poll_return_flat_dict = True
     
@@ -309,7 +309,14 @@ def UHF_init_demod(device_id = 'dev2148', demod_c = 0, out_c = 0):
 
     # Path to UHF LI readout node made globally for using in other functions
     global path_demod
-    path_demod = '/%s/demods/%d/sample' % (device, demod_c) 
+    path_demod = '/%s/demods/%d/sample' % (device, demod_c)
+
+    global path_demod_enable
+    path_demod_enable = '/%s/demods/%d/enable' % (device, demod_c) 
+
+    # Path to UHF LI demodulator trigger node made globally for using in other functions
+    global path_demod_trig
+    path_demod_trig = '/%s/demods/%d/trigger' % (device, demod_c) 
 
 
     # Perform a global synchronisation between the device and the data server:
@@ -411,6 +418,101 @@ def UHF_measure_demod(Num_of_TC = 3):
     #measured_ac_conductance = sample_mean/out_ampl
   
     return sample_mean
+
+
+def UHF_measure_demod_trig(Num_of_TC = 3, trigger = 3, AWG_instr = None, record_time = 5):
+
+
+    """
+    Obtaining data from UHF LI demodulator using ziDAQServer's blocking (synchronous) poll() command
+    Data aqusition controlled with trigger 3 or 4 - trggering on trigger HIGH level
+    Acessing to UHF LI is done by global variable daq and device defined in UHF_init_demod function
+
+   
+
+    Arguments:
+      Num_of_TC(int) - Number of time constant to wait before the measurement
+      Trigger(int) - 3 or 4 - indicates used trigger input on the UHFLI
+                              It will complain if not 3 or 4 is selected
+
+      AWG_instr(Tektronix_AWG5014 class) - Instance of AWG instrument
+      record_time(float) - Recording time in seconds
+
+    Returns:
+
+      sample_mean (float): Mean value of recorded samples (default 1000) as R (amplitude) value of input  
+
+    Raises:
+
+      RuntimeError: If the device is not connected to the Data Server.
+    """
+
+    
+    if AWG_instr is None:
+        raise Exception("AWG_instr is not passed :-P")
+
+    path = path_demod
+
+    # Poll data parameters
+    poll_length = 0.001  # [s]
+    poll_timeout = 500  # [ms]
+    poll_flags = 0
+    poll_return_flat_dict = True 
+
+    if trigger not in [3,4]:
+        raise Exception("Trigger must be either 3 or 4!")
+
+
+    
+
+    # Unsubscribe from all paths (nodes) - needed that buffer is not continuously filling
+    daq.unsubscribe('*')
+
+    daq.setInt(path_demod_trig, 32)
+
+    #START MEASURE
+
+    # Subscribe to the demodulator's sample using global parameter "path demod" from "UHF_init_demod" function
+    daq.subscribe(path_demod) 
+
+    daq.flush()  # Getting rid of previous read data in the buffer
+
+    daq.setInt(path_demod_enable, 1)  # Enable demodulator 
+
+    # Wait for the demodulator filter to settle
+    time.sleep(Num_of_TC*TC) 
+
+    AWG_instr._ins.run()  # Forcing AWG to start output      
+
+
+    time.sleep(record_time)  # Waiting until whole desired data is in buffer
+
+
+
+
+    data = daq.poll(poll_length, poll_timeout, poll_flags, poll_return_flat_dict)  # Readout from subscribed node (demodulator)
+
+    daq.setInt(path_demod_enable, 0)  # Disable demodulator
+
+    #END OF MEASURE
+
+    # Check the dictionary returned is non-empty
+    assert data, "poll() returned an empty data dictionary, did you subscribe to any paths?"
+    # Note, the data could be empty if no data arrived, e.g., if the demods were
+    # disabled or had demodulator rate 0
+    assert path in data, "data dictionary has no key '%s'" % path
+    # The data returned is a dictionary of dictionaries that reflects the node's path
+
+
+    # The data returned is a dictionary of dictionaries that reflects the node's path
+    sample = data[path]
+    sample_x = np.array(sample['x'])    # Converting samples to numpy arrays for faster calculation
+    sample_y = np.array(sample['y'])    # Converting samples to numpy arrays for faster calculation
+    sample_r = np.sqrt(sample_x**2 + sample_y**2)   # Calculating R value from X and y values
+    
+
+  
+    return sample_r
 
 
 

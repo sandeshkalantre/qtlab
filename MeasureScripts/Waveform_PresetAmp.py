@@ -31,6 +31,7 @@ class Pulse():
         self.marker2_dict = dict()
     
         self.waveform = np.array([])                                
+        self.unscaled_waveform = np.array([])                                
         self.marker1 = np.array([])
         self.marker2 = np.array([])
         
@@ -47,11 +48,15 @@ class Pulse():
         self.TimeUnits = self.TimeUnitsDict[self.TimeUnitsKey]
         self.AmpUnitsKey = AmpUnits
         self.AmpUnits = self.AmpUnitsDict[self.AmpUnitsKey]
+
+
         
         self.waveform_name = waveform_name
         #self.Max_amp = 0
-        
-        
+    def setAWG_clock(self,AWG_clock=1e8):
+        self.AWG_clock = AWG_clock;
+        self.AWG_period = 1/float(self.AWG_clock) 
+        self.ModifyWaveform() 
                 
     def setAmplitudes(self, **kwargs):
         '''
@@ -109,6 +114,7 @@ class Pulse():
             Every time some of these values are changed this function makes new pulse if their lengths are the same.
         
         '''
+
         if not(len(self.amplitudes)==len(self.timings)==len(self.marker1_dict)==len(self.marker2_dict)):  # Do modification only if all of these are of the same length - SYNCHRONIZATION
             return 0
         
@@ -117,6 +123,7 @@ class Pulse():
         self.marker2 = np.array([])  # Erase previous marker 2
         
         for key in sorted(self.amplitudes.iterkeys()):  # Sort amplitudes dict and iterate trough its element from the frist one
+            
             
             Length = self.rescaleLength(self.timings[key]) # Rescaling length 
             
@@ -128,22 +135,26 @@ class Pulse():
             Marker2 = self.marker2_dict[key]    # Value of marker2 in current segment
             self.marker1 = np.concatenate((self.marker1,np.linspace(Marker1,Marker1,Length))) 
             self.marker2 = np.concatenate((self.marker2,np.linspace(Marker2,Marker2,Length)))
-        
+
+        self.unscaled_waveform = self.waveform # Buffer waveform to be scaled - in order to avoid multiple rescalings
         #self.rescaleAmplitude() # Resclaing amplitude for getting correct output on AWG
         
         
         
         
     def rescaleLength(self, inp_time):  # Function for rescaling length depending on AWG period and selected time units
+        self.AWG_period = 1.0/self.AWG_clock
         Length = int(inp_time*self.TimeUnits/self.AWG_period)   # Changed 09.03_13:31
         if Length < 5:                                          # Changed 09.03_13:31
             raise Exception('AWG sampling rate too small')    # Changed 09.03_13:31
         return Length
         
     def rescaleAmplitude(self, AWGMaxAmp):
-        self.waveform = self.waveform*self.AmpUnits      # Converting from selected units to V
+        self.waveform = self.unscaled_waveform*self.AmpUnits
+        # Converting from selected units to V
         #self.Max_amp = max(self.waveform)         # Saving Max_amp to be able to set the AWG
         self.waveform = self.waveform/AWGMaxAmp     # Scaling
+        self.waveform = self.waveform - np.mean(self.waveform)   # Substracting mean value in order not to heat up the fridge
     
     def InverseHPfilter(self, R,C, F_sample = 10000000, M=None):
         """Filtering on a real signal using inverse FFT
@@ -249,7 +260,7 @@ class Pulse():
             
         
     def plotWaveform(self, Name = None):    # IN PROGRESS... 
-        #return    # Just to skip plotting                        # DELETE THIS LINE AFTER! 
+        return    # Just to skip plotting                        # DELETE THIS LINE AFTER! 
         if type(Name) is str:    
             plt.figure(Name)
         else:
@@ -362,12 +373,16 @@ class Waveform():
         self.lengthM = 0
         
         
-        
-        
+    def setAWG_clock(self, AWG_clock=1e8):    
+        self.AWG_clock = AWG_clock
+        self.AWG_period = 1/float(AWG_clock)     # Calculating AWG period
     
-        
-        
-        
+        self.CH1.setAWG_clock(self.AWG_clock)
+        self.CH2.setAWG_clock(self.AWG_clock)
+        self.CH3.setAWG_clock(self.AWG_clock)
+        self.CH4.setAWG_clock(self.AWG_clock)
+
+    
         
     def setValuesCH1(self, *args):    # Izbjegavati *args i *kwargs nego koristiti call specific strukture
         self.setValues(self.CH1,args)
@@ -382,16 +397,16 @@ class Waveform():
         self.setValues(self.CH4,args)
         
          
-    def setMArkersCH1(self, *args): 
+    def setMarkersCH1(self, *args): 
         self.setMarker(self.CH1,args)
         
-    def setMArkersCH2(self, *args): 
+    def setMarkersCH2(self, *args): 
         self.setMarker(self.CH2,args)
         
-    def setMArkersCH3(self, *args): 
+    def setMarkersCH3(self, *args): 
         self.setMarker(self.CH3,args)
         
-    def setMArkersCH4(self, *args): 
+    def setMarkersCH4(self, *args): 
         self.setMarker(self.CH4,args)
         
     
@@ -400,6 +415,37 @@ class Waveform():
         self.CH2.rescaleAmplitude(AWGMaxAmp)
         self.CH3.rescaleAmplitude(AWGMaxAmp)
         self.CH4.rescaleAmplitude(AWGMaxAmp)
+
+    def Change_time_units(self, new_unit):
+        '''Function for on the fly changing the time units of the waveform
+            Raises exception if time unit is not one of: us, ms, s'''
+        if new_unit in self.CH1.TimeUnitsDict.keys():
+            self.CH1.TimeUnitsKey = new_unit
+            self.CH1.TimeUnits = self.CH1.TimeUnitsDict[new_unit]
+            self.CH2.TimeUnitsKey = new_unit
+            self.CH2.TimeUnits = self.CH1.TimeUnitsDict[new_unit]
+            self.CH3.TimeUnitsKey = new_unit
+            self.CH3.TimeUnits = self.CH1.TimeUnitsDict[new_unit]
+            self.CH4.TimeUnitsKey = new_unit
+            self.CH4.TimeUnits = self.CH1.TimeUnitsDict[new_unit]
+        else:
+            raise Exception("%s not a proper unit!"%new_unit)
+
+
+    def Change_amp_units(self, new_unit):
+        '''Function for on the fly changing the amplitude units of the waveform
+            Raises exception if amp unit is not one of: uV, mV, V'''
+        if new_unit in self.CH1.AmpUnitsDict.keys():
+            self.CH1.AmpUnitsKey = new_unit   
+            self.CH1.AmpUnits = self.CH1.AmpUnitsDict[new_unit]
+            self.CH2.AmpUnitsKey = new_unit 
+            self.CH2.AmpUnits = self.CH1.AmpUnitsDict[new_unit]
+            self.CH3.AmpUnitsKey = new_unit 
+            self.CH3.AmpUnits = self.CH1.AmpUnitsDict[new_unit]
+            self.CH4.AmpUnitsKey = new_unit 
+            self.CH4.AmpUnits = self.CH1.AmpUnitsDict[new_unit]
+        else:
+            raise Exception("%s not a proper unit!"%new_unit)
         
     
            
@@ -423,11 +469,11 @@ class Waveform():
                 buffer_dict_Amplitudes[key] = (item[1],item[1])  # Creating amplitude chunk for rect segment 
             buffer_dict_Timings[key] = (item[0])
             
-        pulse.setAmplitudes(**buffer_dict_Amplitudes)    # Passing amplitude info to Pulse class (passed as dict)
         pulse.setTimings(**buffer_dict_Timings)    # Passing timing info to Pulse class (passed as dict)
+        pulse.setAmplitudes(**buffer_dict_Amplitudes)    # Passing amplitude info to Pulse class (passed as dict)
         self.lengthV = len(buffer_dict_Timings)    # Synchronization 
-        if self.lengthV == self.lengthM:
-            pulse.plotWaveform()
+        #if self.lengthV == self.lengthM:
+            #pulse.plotWaveform()
         
         
             
@@ -452,8 +498,8 @@ class Waveform():
         pulse.setMarker1(**buffer_dict_Marker1) 
         pulse.setMarker2(**buffer_dict_Marker2)
         self.lengthM = len(buffer_dict_Marker2)    # Synchronization 
-        if self.lengthV == self.lengthM:
-            pulse.plotWaveform()
+        #if self.lengthV == self.lengthM:
+            #pulse.plotWaveform()
             
             
 ## SEQUENCES    

@@ -114,7 +114,7 @@ class Pulse():
             Every time some of these values are changed this function makes new pulse if their lengths are the same.
         
         '''
-        import pdb; pdb.set_trace()
+
         if not(len(self.amplitudes)==len(self.timings)==len(self.marker1_dict)==len(self.marker2_dict)):  # Do modification only if all of these are of the same length - SYNCHRONIZATION
             return 0
         
