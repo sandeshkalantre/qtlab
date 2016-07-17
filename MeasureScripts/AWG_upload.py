@@ -14,7 +14,7 @@ AWG_clock = 10e6        # Wanted AWG clock. Info https://www.google.at/url?sa=t&
 											
 						# Take care about waveform and sequence length and clock rate  - AWG has limited capability
 AWGMax_amp = 2          # In AmpUnits!!! Maximum needed amplitude on all channels for your particular experiment (noise reduction) - need to be set at the beginning
-Seq_length = 10       # Sequence length (number of periods - waveforms)
+Seq_length = 15       # Sequence length (number of periods - waveforms)
 t_sync = 2              # Duration of synchronization element in sequence in "TimeUnits"
 Automatic_sequence_generation = False   # Flag for determining type of sequence generation: Automatic - True,  Manual - False 
 
@@ -58,9 +58,9 @@ if not(Automatic_sequence_generation):  # If user wants manual sequence generati
     seqCH2 = list()	# Initializing list for channel 2 sequence
     seq = list() # Initializing list that will contain all sequences (all channels)
 
-    A1 = np.array([150,0,-100]) # Initial amplitudes
+    A1 = np.array([100,100,-100]) # Initial amplitudes
     delta_A1 = A1[1]/((Seq_length-1)/2.0) 
-    A2 = np.array([-324,-18,20]) # Initial amplitudes
+    A2 = np.array([-200,-200,200]) # Initial amplitudes
     delta_A2 = A2[1]/((Seq_length-1)/2.0)  
 
     

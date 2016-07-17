@@ -46,8 +46,8 @@ def set_waveform(seq,AWG_clock,AWGMax_amp,Seq_length, sync = None, compensate = 
      #   CompleteSeqWav = np.concatenate((CompleteSeqWav,np.array(elem.waveform)))
         
     #CompleteSeqWavInv = INV.InverseHPfilterSeq(CompleteSeqWav, R = 2E7, C = 1E-9)   # Making HP inverse on concatenated wavefroms
-   # 
-  # 
+    # 
+    # 
     #print(len(CompleteSeqWav), len(CompleteSeqWavInv))
     #
     #stop = 0 
@@ -194,12 +194,12 @@ def set_waveform(seq,AWG_clock,AWGMax_amp,Seq_length, sync = None, compensate = 
     ## SET AWG
     AWG.set_sequence_mode_on()  # Tell the device to run in sequence mode (run_mode_sequence)
     AWG.set_seq_length(0)   # Clear all elements of existing sequence   
-    AWG.set_seq_length(Seq_length)  # Set wanted sequence length
+    AWG.set_seq_length(len(seq[0]))  # Sequence length is number of elements in already created sequence
+                                     # Same for all channels
     
     
     seq = filter(None, seq)  # Remove all empty elements from list
 
-    print "seq length", len(seq[0]),len(seq[1])
 
     # Create the sequence from previously uploaded files for wanted channels 
     
@@ -215,22 +215,23 @@ def set_waveform(seq,AWG_clock,AWGMax_amp,Seq_length, sync = None, compensate = 
         elif 'CH4' in seq[ch][0].waveform_name:
             channel = 4
 
-        for elem_num, seq_elem in enumerate(seq[ch]):   # Iterating trough sequence elements
-
-            #print "Loading %s" %seq_elem.waveform_name
+        
+        for elem_num,seq_elem in enumerate(seq[ch]):   # Iterating trough sequence elements
 
             if elem_num == 0: # If it is the FIRST element set TWAIT = 1 - wait for trigger
                 AWG.load_seq_elem(elem_num+1,channel, seq_elem.waveform_name, TWAIT = 1)
 
 
-
-            
-
             if elem_num == (len(seq[ch])-1): # If it is the last element set GOTOind=1 - return to first elem
                 AWG.load_seq_elem(elem_num+1,channel, seq_elem.waveform_name, GOTOind=1)
+            
                 
             else:
                 AWG.load_seq_elem(elem_num+1,channel, seq_elem.waveform_name)
+
+            
+            
+
                 
                
                            
@@ -239,7 +240,7 @@ def set_waveform(seq,AWG_clock,AWGMax_amp,Seq_length, sync = None, compensate = 
     #AWG._ins.do_set_output(1,2)
     #AWG._ins.do_set_output(1,3)
     #AWG._ins.do_set_output(1,4)
-    
+
     
     
     #Run

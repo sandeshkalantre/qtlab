@@ -1198,13 +1198,15 @@ class Tektronix_AWG5014(Instrument):
         #Infinite loop of this element (ON/OFF)
         self._visainstrument.write('SEQUENCE:ELEMENT%d:LOOP:INFINITE %d' %(elem, INF))
         
-        if GOTOind is not None:  # If we want to specify GOTOind    
+        if GOTOind is not None:  # If we want to specify GOTOind
+         
         
             #For the SEQuence:ELEMent[n]:GOTO:INDex command to take effect, the GOTO state must be set to ON        
             self._visainstrument.write('SEQUENCE:ELEMENT%d:GOTO:STATE 1' %elem)
-        
+            
             #Index of next element for execution 
-            self._visainstrument.write('SEQUENCE:ELEMENT%d:GOTO:INDEX %d' %(elem, GOTOind))
+            if GOTOind:  # If GOTOind is 1 - set GOTOind flag on this element       
+                self._visainstrument.write('SEQUENCE:ELEMENT%d:GOTO:INDEX %d' %(elem, 1))
         
     
     def set_seq_length(self,length):   # ADDED FUNCTION (TO TEST)
