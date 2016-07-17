@@ -62,21 +62,36 @@ def set_waveform(seq,AWG_clock,AWGMax_amp,Seq_length, sync = None, compensate = 
     
     #print("Lch1",len(seq[0][2].waveform),"Lch2",len(seq[1][2].waveform))
 
+    #seq = filter(None, seq)  # Remove all empty elements from list
+
     # Calculate average of whole sequence and sequence length
-    aver_list = list()
+    aver_list = list()  # List for storing average value of whole sequence for all channels
+    sum_list = list()  # List for storing area or integral of whole sequence for all channels
+    weigths = list()  # List containing timings of all elements in the sequence - needed for calculation of weigthed average
     time_seq =  0 # Sequence time
     for ch_num in xrange(len(seq)):
         aver_list.append([])   # Adding element for the channel
         for seq_elem in seq[ch_num]:
             if ch_num == 0:   # Sequence for all channels have same length so we need to take a look at just one
                 time_seq = time_seq + sum(seq_elem.timings.values())
-            aver_list[ch_num].append(seq_elem.waveform.mean())  # Adding average for every element for one channel in the sequence
-        aver_list[ch_num] = np.mean(aver_list[ch_num]) # Calculating average for complete sequence for every channel
+                weigths.append(sum(seq_elem.timings.values()))   # Storing complete time of single element in sequence 
+            aver_list[ch_num].append(seq_elem.waveform.mean())  # Adding average for every element of one channel in the sequence
+        aver_list[ch_num] = np.average(aver_list[ch_num], weights=weigths)
+        #aver_list[ch_num] = np.mean(aver_list[ch_num]) # Calculating average for complete sequence for every channel
 
     print ("aver_list",aver_list)
     print ("time_seq",time_seq)
 
-    # HARD CODED!
+    #for ch_num in xrange(len(seq)):
+        #sum_list.append(aver_list[ch_num]*time_seq)   # Calculating area or integral of whole sequence for all channels
+
+    
+    # Compensation element calculation principle:
+    # First calculate compensation element time based on sequence area and AWGMax_amp using formula: time_comp = area/AWGMax_amp , for all channels
+    # Find maximum compensation element time of all channels and set compensation element time time_comp to that one
+    # For each channel calculate amplitude of compensation element amp_comp based on time_comp 
+    # Reason for this approach is AWG requirement that all channels need to have same number of points - compensation element time need to be the same for all channels
+
     time_comp = 0 # Time of compensation element
     for ch_num in xrange(len(seq)):
         AWGMax_amp_real_units = AWGMax_amp/(seq[ch_num][0].AmpUnitsDict[seq[ch_num][0].AmpUnitsKey])  # Converting AWGMax_amp to real units for sequence for each channel
@@ -84,7 +99,7 @@ def set_waveform(seq,AWG_clock,AWGMax_amp,Seq_length, sync = None, compensate = 
         if time_comp_temp > time_comp:  # Finding biggest time of compensation element amongst all channels (needed becuse sequences for all channels need to be of the same length)
             time_comp = time_comp_temp
 
-    time_comp = time_comp*5 # Increasing time of compensation element to be lower compensation amplitude 
+    time_comp = time_comp*5 # Increasing time of compensation element to achieve lower compensation amplitude 
     print ("time_comp",time_comp)
 
 
@@ -93,16 +108,16 @@ def set_waveform(seq,AWG_clock,AWGMax_amp,Seq_length, sync = None, compensate = 
     
 
     # Creating two first elements in sequence - sync and compensate
-    for ch_num in xrange(len(seq)):
+    for ch in xrange(len(seq)):
         
-        if aver_list[ch_num] > 0:  # If mean value of sequence is positive, amplitude of compensation pulse need to be negative and vice versa
-            amp_comp = -(aver_list[ch_num]*time_seq)/time_comp
-        else:
-            amp_comp = (aver_list[ch_num]*time_seq)/time_comp
+         
+        amp_comp = -(aver_list[ch]*time_seq)/time_comp # If mean value of sequence is positive, amplitude of compensation pulse need to be negative and vice versa
+
 
         print ("amp_comp", amp_comp)
 
-        if ch_num == 0:
+        if 'CH1' in seq[ch][0].waveform_name:   # Checking for which channel sync and compensate elements needs to be created
+                                                 # by checking the name of first element dedicated to specified channel
 
             sync.setValuesCH1([t_sync,0])  # Starting element in sequence with zero amp for synchronization reasons
             sync.setMarkersCH1([0],[0])   # Starting element in sequence with zero marker amp for synchronization reasons
@@ -110,21 +125,21 @@ def set_waveform(seq,AWG_clock,AWGMax_amp,Seq_length, sync = None, compensate = 
             compensate.setValuesCH1([time_comp,amp_comp])  # Second element in list with calculated amplitude for compensation reasons
             compensate.setMarkersCH1([0],[0])   # Second element in list for compensation reasons, with zero marker amp
 
-        elif  ch_num == 1:
+        elif 'CH2' in seq[ch][0].waveform_name:
             sync.setValuesCH2([t_sync,0])  # Starting element in sequence with zero amp for synchronization reasons
             sync.setMarkersCH2([0],[0])   # Starting element in sequence with zero marker amp for synchronization reasons
 
             compensate.setValuesCH2([time_comp,amp_comp])  # Second element in list with calculated amplitude for compensation reasons
             compensate.setMarkersCH2([0],[0])   # Second element in list for compensation reasons, with zero marker amp
 
-        elif  ch_num == 2:
+        elif 'CH3' in seq[ch][0].waveform_name:
             sync.setValuesCH3([t_sync,0])  # Starting element in sequence with zero amp for synchronization reasons
             sync.setMarkersCH3([0],[0])   # Starting element in sequence with zero marker amp for synchronization reasons
 
             compensate.setValuesCH3([time_comp,amp_comp])  # Second element in list with calculated amplitude for compensation reasons
             compensate.setMarkersCH3([0],[0])   # Second element in list for compensation reasons, with zero marker amp
 
-        elif  ch_num == 3:
+        elif 'CH4' in seq[ch][0].waveform_name:
             sync.setValuesCH4([t_sync,0])  # Starting element in sequence with zero amp for synchronization reasons
             sync.setMarkersCH4([0],[0])   # Starting element in sequence with zero marker amp for synchronization reasons
 
@@ -134,31 +149,32 @@ def set_waveform(seq,AWG_clock,AWGMax_amp,Seq_length, sync = None, compensate = 
 
 
     # Adding sync and compensate elements at the start of the sequence
-    for ch_num in xrange(len(seq)):
-        if ch_num == 0:
-            if time_comp == 0:   # If time of compensation element is zero -> mean value is zero -> no need for compensation element -> not putting it in list below
-                seq[ch_num] = [sync.CH1] + seq[ch_num]
-            else:               # If time of compensation element is nonzero -> compensation element is needed
-                seq[ch_num] = [sync.CH1, compensate.CH1] + seq[ch_num]
+    for ch in xrange(len(seq)):
 
-        elif  ch_num == 1:
+        if 'CH1' in seq[ch][0].waveform_name:
             if time_comp == 0:   # If time of compensation element is zero -> mean value is zero -> no need for compensation element -> not putting it in list below
-                seq[ch_num] = [sync.CH2] + seq[ch_num]
+                seq[ch] = [sync.CH1] + seq[ch]
             else:               # If time of compensation element is nonzero -> compensation element is needed
-                seq[ch_num] = [sync.CH2, compensate.CH2] + seq[ch_num]
+                seq[ch] = [sync.CH1, compensate.CH1] + seq[ch]
+
+        elif 'CH2' in seq[ch][0].waveform_name:
+            if time_comp == 0:   # If time of compensation element is zero -> mean value is zero -> no need for compensation element -> not putting it in list below
+                seq[ch] = [sync.CH2] + seq[ch]
+            else:               # If time of compensation element is nonzero -> compensation element is needed
+                seq[ch] = [sync.CH2, compensate.CH2] + seq[ch]
             
-        elif  ch_num == 2:
+        elif 'CH3' in seq[ch][0].waveform_name:
             if time_comp == 0:   # If time of compensation element is zero -> mean value is zero -> no need for compensation element -> not putting it in list below
-                seq[ch_num] = [sync.CH3] + seq[ch_num]
+                seq[ch] = [sync.CH3] + seq[ch]
             else:               # If time of compensation element is nonzero -> compensation element is needed
-                seq[ch_num] = [sync.CH3, compensate.CH3] + seq[ch_num]
+                seq[ch] = [sync.CH3, compensate.CH3] + seq[ch]
              
 
-        elif  ch_num == 3:
+        elif 'CH4' in seq[ch][0].waveform_name:
             if time_comp == 0:   # If time of compensation element is zero -> mean value is zero -> no need for compensation element -> not putting it in list below
-                seq[ch_num] = [sync.CH4] + seq[ch_num]
+                seq[ch] = [sync.CH4] + seq[ch]
             else:               # If time of compensation element is nonzero -> compensation element is needed
-                seq[ch_num] = [sync.CH4, compensate.CH4] + seq[ch_num]
+                seq[ch] = [sync.CH4, compensate.CH4] + seq[ch]
             
        
 
@@ -183,9 +199,12 @@ def set_waveform(seq,AWG_clock,AWGMax_amp,Seq_length, sync = None, compensate = 
     
     seq = filter(None, seq)  # Remove all empty elements from list
 
+    print "seq length", len(seq[0]),len(seq[1])
+
     # Create the sequence from previously uploaded files for wanted channels 
     
     for ch in xrange(len(seq)):   # Iterating trough channels
+        print "Loading %d" %ch
         
         if 'CH1' in seq[ch][0].waveform_name:   # Checking to which channel sequence elements needs to be uploaded
             channel = 1                        # by checking the name of first element dedicated to specified channel
@@ -197,9 +216,12 @@ def set_waveform(seq,AWG_clock,AWGMax_amp,Seq_length, sync = None, compensate = 
             channel = 4
 
         for elem_num, seq_elem in enumerate(seq[ch]):   # Iterating trough sequence elements
-            
+
+            #print "Loading %s" %seq_elem.waveform_name
+
             if elem_num == 0: # If it is the FIRST element set TWAIT = 1 - wait for trigger
                 AWG.load_seq_elem(elem_num+1,channel, seq_elem.waveform_name, TWAIT = 1)
+
 
 
             
