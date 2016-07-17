@@ -94,7 +94,7 @@ def UHF_init_scope(device_id = 'dev2148'):
 
 
 
-def UHF_measure_scope(device_id = 'dev2148', maxtime = 5):
+def UHF_measure_scope(device_id = 'dev2148', maxtime = 5, AWG_instance = None):
 
     """
     Obtaining data from UHF LI using ziDAQServer's blocking (synchronous) poll() command
@@ -125,7 +125,7 @@ def UHF_measure_scope(device_id = 'dev2148', maxtime = 5):
     
     # Poll data parameters
     poll_length = 0.001  # [s]
-    poll_timeout = 4000  # [ms]
+    poll_timeout = maxtime*1000  # [ms]
     poll_flags = 0
     poll_return_flat_dict = True
     
@@ -135,11 +135,15 @@ def UHF_measure_scope(device_id = 'dev2148', maxtime = 5):
     #START MEASURE
     # Subscribe to the scope data
     path =  '/%s/scopes/0/wave' % (device)  # Device node to acquire data from (this one stands for scope)
+
     
     daq.sync()
     daq.subscribe(path)
-
-    #AWG.force_trigger() # This trigger also triggers lockin aquisition/BNC cable  # CHANGED
+    
+    time.sleep(maxtime)   # Empirically proven that here we need to wait at least the scope shot length
+    
+    AWG_instance._ins.force_trigger() # This trigger also triggers lockin aquisition/BNC cable 
+    #AWG_instance._ins.run()
     
     start = time.time()  # Starting time counter
     while True:  # Readout data block by block until whole buffer is read out
@@ -200,20 +204,20 @@ def UHF_measure_scope(device_id = 'dev2148', maxtime = 5):
     shotCH1 = shotCH1 * Amp_scaling_factorCH1   # Rescaling returned data to get proper values
     shotCH2 = shotCH2 * Amp_scaling_factorCH2
     
-    plt.figure(1)
-    plt.title("Data from CH1")
-    plt.plot(shotCH1) 
-    plt.xlabel('Samples')
-    plt.ylabel('Amplitude (V)')
-    plt.show(block=False)
+    #plt.figure(1)
+    #plt.title("Data from CH1")
+    #plt.plot(shotCH1) 
+    #plt.xlabel('Samples')
+    #plt.ylabel('Amplitude (V)')
+    #plt.show(block=False)
     
-    if CH2_ON:
-        plt.figure(2)
-        plt.title("Data from CH2")
-        plt.plot(shotCH2) 
-        plt.xlabel('Samples')
-        plt.ylabel('Amplitude (V)')
-        plt.show(block=False)
+    #if CH2_ON:
+        #plt.figure(2)
+        #plt.title("Data from CH2")
+        #plt.plot(shotCH2) 
+        #plt.xlabel('Samples')
+        #plt.ylabel('Amplitude (V)')
+        #plt.show(block=False)
     
     
     #AWG._visainstrument.close()   # Closing the session towards instrument
