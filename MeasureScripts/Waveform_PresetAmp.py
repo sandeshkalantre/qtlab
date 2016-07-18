@@ -149,12 +149,17 @@ class Pulse():
             raise Exception('AWG sampling rate too small')    # Changed 09.03_13:31
         return Length
         
-    def rescaleAmplitude(self, AWGMaxAmp):
-        self.waveform = self.unscaled_waveform*self.AmpUnits
+    def rescaleAmplitude(self, AWGMaxAmp, mean):
+        
+
         # Converting from selected units to V
+        self.waveform = self.unscaled_waveform*self.AmpUnits
         #self.Max_amp = max(self.waveform)         # Saving Max_amp to be able to set the AWG
         self.waveform = self.waveform/AWGMaxAmp     # Scaling
-        #self.waveform = self.waveform - mean   # Substracting mean value in order not to heat up the fridge
+        mean = mean*self.AmpUnits/AWGMaxAmp
+        self.waveform = self.waveform - mean   # Substracting mean value in order not to heat up the fridge
+        
+        
     
     def InverseHPfilter(self, R,C, F_sample = 10000000, M=None):
         """Filtering on a real signal using inverse FFT
