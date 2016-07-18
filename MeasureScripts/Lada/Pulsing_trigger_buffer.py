@@ -3,15 +3,15 @@ from time import time,sleep
 import datetime
 import UHFLI_lib
 import matplotlib.pyplot as plt
-
+import math
 
 
 #IVVI = qt.instruments.create('DAC','IVVI',interface = 'COM4', polarity=['BIP', 'POS', 'POS', 'BIP'], numdacs=16)
 AWG = qt.instruments.get("AWG")
-name='pulsing,80uV -35dBm, ch1 1500mV 20us, 0V 500us, ch2 -1800mV 20us, 500uV 3ms 50kHz(4)' 
+name='pulsing,80uV -35dBm, tests again symm pulse' 
 
-Scope_sampling_rate = 880000 #Hz
-Sequence_duration = 0.0602 #s
+Scope_sampling_rate = 7030000 #Hz
+Sequence_duration = 0.0104 #s
 Num_of_pulses = 20
 
  
@@ -40,10 +40,10 @@ data = qt.Data(name=name)
 # information is used later for plotting purposes.
 # Adding coordinate and value info is optional, but recommended.
 # If you don't supply it, the data class will guess your data format.
+data.add_coordinate('Line_num')
 data.add_coordinate('Num of samples')
-
 data.add_value('Reflection [Arb. U.]')
-data.add_value('Pulse Voltage [V]')
+#data.add_value('Pulse Voltage [V]')
 
 # The next command will actually create the dirs and files, based
 # on the information provided above. Additionally a settingsfile
@@ -58,6 +58,7 @@ try:
     # measurement a 'name' can be provided so that window can be reused.
     # If the 'name' doesn't already exists, a new window with that name
     # will be created. For 3d plots, a plotting style is set.
+    plot3d = qt.Plot3D(data, name='measure3D', coorddims=(0,1), valdim=2, style='image')
     #plot2d = qt.Plot2D(data, name=name, autoupdate=True)
     #plot2d.set_style('lines')
 
@@ -88,20 +89,23 @@ try:
     # You can load this settings file from UHFLI user interface 
     UHFLI_lib.UHF_save_settings(path = data_path)
     
-    #ch1 = result[0][0:(Scope_sampling_rate*Sequence_duration)]
-    #ch1mat = reshape(ch1,(Num_of_pulses, (Scope_sampling_rate*Sequence_duration)/Num_of_pulses))
+    num_col = math.trunc((Scope_sampling_rate*Sequence_duration)/Num_of_pulses)
+    ch1 = result[0][0:(num_col*Num_of_pulses)]
+    ch1mat = reshape(ch1,(Num_of_pulses, num_col))
     #pl = plt.plot(ch1mat[0])
     #mean = ch1mat.mean(0)
     #pl = plt.plot(mean)
+
+    for line_num,line in enumerate(ch1mat):
+        data.add_data_point(np.linspace(line_num, line_num, line.size),np.linspace(0, line.size, line.size), line)
+        data.new_block()
     
 
-    plt.show()
+    #plt.show()
 
 
 
 finally:
-
-
    
     # after the measurement ends, you need to close the data file.
     data.close_file()
