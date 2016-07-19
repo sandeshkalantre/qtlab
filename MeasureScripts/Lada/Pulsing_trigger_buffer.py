@@ -8,11 +8,11 @@ import math
 
 #IVVI = qt.instruments.create('DAC','IVVI',interface = 'COM4', polarity=['BIP', 'POS', 'POS', 'BIP'], numdacs=16)
 AWG = qt.instruments.get("AWG")
-name='pulsing,80uV -35dBm, tests again symm pulse' 
+name='pulsing,80uV -35dBm, +-500, -+600, 500us500us three-part-pulse 100#' 
 
 Scope_sampling_rate = 7030000 #Hz
-Sequence_duration = 0.0104 #s
-Num_of_pulses = 20
+Sequence_duration = 0.15 #s
+Num_of_pulses = 100
 
  
 

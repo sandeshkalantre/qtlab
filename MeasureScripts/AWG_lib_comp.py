@@ -88,7 +88,8 @@ def set_waveform(seq,AWG_clock,AWGMax_amp, sync = None, compensate = None, t_syn
         if time_comp_temp > time_comp:  # Finding biggest time of compensation element amongst all channels (needed becuse sequences for all channels need to be of the same length)
             time_comp = time_comp_temp
 
-    time_comp = time_comp*5 # Increasing time of compensation element to achieve lower compensation amplitude 
+    time_comp = time_comp*5 + 1 # Increasing time of compensation element to achieve lower compensation amplitude, adding one to avoid zero value
+
     print ("time_comp",time_comp) 
     
 

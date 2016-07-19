@@ -139,8 +139,8 @@ def set_waveform(seq,AWG_clock,AWGMax_amp, t_sync, sync):
 
         for elem_num, seq_elem in enumerate(seq[ch]):   # Iterating trough sequence elements
             
-            #if elem_num == 0: # If it is the FIRST element set TWAIT = 1 - wait for trigger
-                #AWG.load_seq_elem(elem_num+1,channel, seq_elem.waveform_name, TWAIT = 1)
+            if elem_num == 0: # If it is the FIRST element set TWAIT = 1 - wait for trigger
+                AWG.load_seq_elem(elem_num+1,channel, seq_elem.waveform_name, TWAIT = 1)
 
 
             
