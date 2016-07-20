@@ -59,7 +59,7 @@ if not(Automatic_sequence_generation):  # If user wants manual sequence generati
     seqCH2 = list()	# Initializing list for channel 2 sequence
     seq = list() # Initializing list that will contain all sequences (all channels)
 
-    A1 = np.array([500,500,-500]) # Initial amplitudes
+    A1 = np.array([500,0,0]) # Initial amplitudes
     delta_A1 = A1[1]/((Seq_length-1)/2)
     A2 = np.array([-600, -600, 600]) # Initial amplitudes
     delta_A2 = A2[1]/((Seq_length-1)/2)  

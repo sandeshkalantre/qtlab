@@ -4,6 +4,7 @@
 #import Tektronix_AWG5014 as ArbWG
 #import InverseHPfilterSeq as INV   # ADDED
 import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
 import qt
 import re
 import time
@@ -103,16 +104,43 @@ def set_waveform(seq,AWG_clock,AWGMax_amp, t_sync, sync):
     
     
     
-    ## UPLOAD Sequence to AWG hard
+    #Rescale and plot sequence
     for ch_num in xrange(len(seq)):
+        fig = plt.figure("CH%d"%(ch_num+1))
         for i,seq_elem in enumerate(seq[ch_num]):
             if i == 0:   # Skiping substraction of mean value from the sync element
                 mean = 0
             else:
                 mean = aver_list[ch_num]
             seq_elem.rescaleAmplitude(AWGMax_amp, mean)
+            # Plot start and end element of sequence
+            if i == 1 or i == (len(seq[ch_num])-1):
+                seq_elem.plotWaveform(fig = fig, waveform = seq_elem.reverse_rescaleAmplitude(AWGMax_amp)) # Passing reverse rescaled wavefrom to plotWavefrom 
+                                                                                                           # function for getting the correct plot
+                blue_line = mlines.Line2D([], [], color='blue',
+                    markersize=15, label='Start')
+                green_line = mlines.Line2D([], [], color='green',
+                    markersize=15, label='End')
+                plt.legend(handles=[blue_line, green_line])
+        plt.show(block=False)
+
+                
+
+
+    # Terminating upload if sequence does not look good enough
+    user_in = raw_input("Press Enter for uploading or T if you are too picky : ")
+    if user_in.upper() == "T":
+        print("AWG upload terminated")
+        return
+
+    # UPLOAD Sequence to AWG hard
+    for ch_num in xrange(len(seq)):
+        for i,seq_elem in enumerate(seq[ch_num]):        
             AWG.send_waveform_object(Wav = seq_elem, path = 'C:\SEQwav\\')
             AWG.import_waveform_object(Wav = seq_elem, path = 'C:\SEQwav\\')
+            
+
+
             
             
     

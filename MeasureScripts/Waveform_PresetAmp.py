@@ -158,7 +158,11 @@ class Pulse():
         self.waveform = self.waveform/AWGMaxAmp     # Scaling
         mean = mean*self.AmpUnits/AWGMaxAmp
         self.waveform = self.waveform - mean   # Substracting mean value in order not to heat up the fridge
-        
+
+    def reverse_rescaleAmplitude(self, AWGMaxAmp):
+        wav = self.waveform*AWGMaxAmp
+        wav = wav/self.AmpUnits
+        return wav
         
     
     def InverseHPfilter(self, R,C, F_sample = 10000000, M=None):
@@ -264,29 +268,36 @@ class Pulse():
         
             
         
-    def plotWaveform(self, Name = None):    # IN PROGRESS... 
-        #return    # Just to skip plotting                        # DELETE THIS LINE AFTER! 
-        if type(Name) is str:    
-            plt.figure(Name)
+    def plotWaveform(self, Name = None, fig = None, waveform = None):    # IN PROGRESS... 
+        #return    # Just to skip plotting
+                                 # DELETE THIS LINE AFTER!
+        if fig is None:  # If no figure is passed create new one
+            if type(Name) is str:    
+                plt.figure(Name)
+            else:
+                plt.figure(self.waveform_name)
+        if waveform == None:  # If no wavefrom is passed use self.wavefrom
+            wav = self.waveform
         else:
-            plt.figure(self.waveform_name) 
-        t = np.linspace(1, len(self.waveform),len(self.waveform))*self.AWG_period/self.TimeUnits   # Creating time axis
-        plt.subplot(511)
-        y = self.waveform*self.AmpUnits  
+            wav = waveform
+        t = np.linspace(1, len(wav),len(wav))*self.AWG_period/self.TimeUnits   # Creating time axis
+        plt.subplot(311)
+        y = wav  
         plt.plot(t,y)       # Ploting waveform
-        plt.ylabel('Waveform amplitude'  + '  ' + self.AmpUnitsKey)
+        plt.ylabel('Waveform amp'  + '  ' + self.AmpUnitsKey)
         plt.xlabel('Waveform time in' + '  ' + self.TimeUnitsKey)
-        plt.subplot(513)
+        plt.legend(
+        plt.subplot(614)
         y = self.marker1
         plt.plot(t,y)       # Ploting marker 1
-        plt.ylabel('Marker1 amplitude')
+        plt.ylabel('Marker1 amp')
         plt.xlabel('Waveform time in' + '  ' + self.TimeUnitsKey)
-        plt.subplot(515)
+        plt.subplot(616)
         y = self.marker2
         plt.plot(t,y)       # Ploting marker 2
-        plt.ylabel('Marker2 amplitude')
+        plt.ylabel('Marker2 amp')
         plt.xlabel('Waveform time in' + '  ' + self.TimeUnitsKey)
-        plt.show(block=False)
+        #plt.show(block=False)
         
         
     def sequence(self, p2, NumOfSteps, seqName):  # Ovo se ipak moze mozda izdojiti u zasebnu klasu 
