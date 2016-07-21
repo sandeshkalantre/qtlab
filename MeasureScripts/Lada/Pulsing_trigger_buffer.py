@@ -8,11 +8,11 @@ import math
 
 #IVVI = qt.instruments.create('DAC','IVVI',interface = 'COM4', polarity=['BIP', 'POS', 'POS', 'BIP'], numdacs=16)
 AWG = qt.instruments.get("AWG")
-name='pulsing,80uV -35dBm, +-500, -+600, 500us500us three-part-pulse 100#' 
+name='pulsing,80uV -35dBm, -+500, +-600, 200us200us three-part-pulse 1000#' 
 
 Scope_sampling_rate = 7030000 #Hz
-Sequence_duration = 0.15 #s
-Num_of_pulses = 100
+Sequence_duration = 0.6 #s
+Num_of_pulses = 1000
 
  
 
@@ -70,7 +70,7 @@ try:
 
 
     # readout
-    result = UHFLI_lib.UHF_measure_scope(AWG_instance = AWG, maxtime = 1)
+    result = UHFLI_lib.UHF_measure_scope(AWG_instance = AWG, maxtime = 3)
 
     # Turn off AWG
     #AWG._ins.do_set_output(0,1)   # Turn on AWG ch1

@@ -286,7 +286,6 @@ class Pulse():
         plt.plot(t,y)       # Ploting waveform
         plt.ylabel('Waveform amp'  + '  ' + self.AmpUnitsKey)
         plt.xlabel('Waveform time in' + '  ' + self.TimeUnitsKey)
-        plt.legend(
         plt.subplot(614)
         y = self.marker1
         plt.plot(t,y)       # Ploting marker 1

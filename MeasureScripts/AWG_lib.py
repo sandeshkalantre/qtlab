@@ -128,7 +128,7 @@ def set_waveform(seq,AWG_clock,AWGMax_amp, t_sync, sync):
 
 
     # Terminating upload if sequence does not look good enough
-    user_in = raw_input("Press Enter for uploading or T if you are too picky : ")
+    user_in = raw_input("Press Enter for uploading or T+Enter if you are too picky : ")
     if user_in.upper() == "T":
         print("AWG upload terminated")
         return

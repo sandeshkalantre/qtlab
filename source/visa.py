@@ -68,7 +68,7 @@ class TcpIpInstrument:
     Class to mimic visa instrument for TCP/IP connected text-based devices.
     '''
 
-    def __init__(self, host, port, timeout=100, termchars='\n'):
+    def __init__(self, host, port, timeout=500, termchars='\n'):
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._socket.connect((host, port))
 
