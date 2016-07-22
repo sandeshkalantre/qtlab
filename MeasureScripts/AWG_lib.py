@@ -43,15 +43,7 @@ def set_waveform(seq,AWG_clock,AWGMax_amp, t_sync, sync):
             None
     '''
     
-   
-    AWG.set_ch1_amplitude(AWGMax_amp)  # Setting maximum needed amp on all channels
-    AWG.set_ch2_amplitude(AWGMax_amp) 
-    AWG.set_ch3_amplitude(AWGMax_amp) 
-    AWG.set_ch4_amplitude(AWGMax_amp) 
-   
-        
-    AWG.del_waveform_all()  # Clear all waveforms in waveform list
-    AWG.set_clock(AWG_clock)  # Set AWG clock
+
 
 
     # Calculate average of whole sequence and sequence length
@@ -132,6 +124,17 @@ def set_waveform(seq,AWG_clock,AWGMax_amp, t_sync, sync):
     if user_in.upper() == "T":
         print("AWG upload terminated")
         return
+
+   
+    AWG.set_ch1_amplitude(AWGMax_amp)  # Setting maximum needed amp on all channels
+    AWG.set_ch2_amplitude(AWGMax_amp) 
+    AWG.set_ch3_amplitude(AWGMax_amp) 
+    AWG.set_ch4_amplitude(AWGMax_amp) 
+   
+        
+    AWG.del_waveform_all()  # Clear all waveforms in waveform list
+    AWG.set_clock(AWG_clock)  # Set AWG clock
+
 
     # UPLOAD Sequence to AWG hard
     for ch_num in xrange(len(seq)):
