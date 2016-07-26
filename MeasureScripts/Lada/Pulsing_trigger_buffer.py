@@ -9,13 +9,13 @@ import math
 #IVVI = qt.instruments.create('DAC','IVVI',interface = 'COM4', polarity=['BIP', 'POS', 'POS', 'BIP'], numdacs=16)
 AWG = qt.instruments.get("AWG")
 #name='pulsing,80uV -35dBm, -+500, +-600, 200us200us three-part-pulse 1000#' 
-name = " Ploting Test"#5-24 By=2T, tunnel level calib, -+500 ch1, +-600ch2, 3x200us"
+name = "5-24 By=2T,crazy sequence, W,L,W,R,E 700us"
 
 Scope_sampling_rate =  7030000#Hz
-Sequence_duration = 0.06 #s
+Sequence_duration = 0.5065 #s
 Num_of_pulses = 100 # Sequence length - correspond to number of rows in slice matrix
 
-Signal_level = 0.5 # In Volts. AWG Marker level 
+Signal_level = 0.0015 # In Volts. AWG Marker level 
 
  
 
@@ -61,7 +61,7 @@ try:
     # measurement a 'name' can be provided so that window can be reused.
     # If the 'name' doesn't already exists, a new window with that name
     # will be created. For 3d plots, a plotting style is set.
-    plot3d = qt.Plot3D(data, name='plotko10', coorddims=(0,1), valdim=2, style='image', autoupdate = False)
+    plot3d = qt.Plot3D(data, name='crazy_seq1', coorddims=(0,1), valdim=2, style='image', autoupdate = False)
     #plot2d = qt.Plot2D(data, name=name, autoupdate=True)
     #plot2d.set_style('lines')
 
@@ -73,7 +73,7 @@ try:
 
 
     # readout
-    result = UHFLI_lib.UHF_measure_scope(AWG_instance = AWG, maxtime = 1)
+    result = UHFLI_lib.UHF_measure_scope(AWG_instance = AWG, maxtime = 2)
 
     # Turn off AWG
     #AWG._ins.do_set_output(0,1)   # Turn on AWG ch1
@@ -93,18 +93,19 @@ try:
     UHFLI_lib.UHF_save_settings(path = data_path)
     
 
-    ch2 = result[1] # Readout form scope channel two (AWG Marker1)
-    ch2 = ch2[::-1] # Reversing ch2 for argmax function
-    Signal_level = abs(Signal_level)/2 # DIvision by two because of 50ohm UHFLI input termination
-    ch2 = abs(ch2)
-    end_index = - np.argmax(ch2>Signal_level*0.8) # Ending index of readout data is when Marker becomes high, minus sign because of reversed ch2 vector, factor 0.8 to be sure to catch something
-
-    #num_col = math.trunc((Scope_sampling_rate*Sequence_duration)/Num_of_pulses)
+    #ch2 = result[1] # Readout form scope channel two (AWG Marker1)
+    #ch2 = ch2[::-1] # Reversing ch2 for argmax function
+    #Signal_level = abs(Signal_level)/2 # DIvision by two because of 50ohm UHFLI input termination
+    #ch2 = abs(ch2)
+    #end_index = - np.argmax(ch2>Signal_level*0.8) # Ending index of readout data is when Marker becomes high, minus sign because of reversed ch2 vector, factor 0.8 to be sure to catch something
+    length_fixed = Scope_sampling_rate*Sequence_duration - (Scope_sampling_rate*Sequence_duration)%Num_of_pulses
+    length_fixed = int(length_fixed)
+    num_col = length_fixed /Num_of_pulses
 
      
-    ch1 = result[0][0:end_index] # Reducing redout data on scope ch1 to Sequence length (Marker length) 
-    num_col = float(ch1.size)/Num_of_pulses # Rounded integer value (to lower) of columns in slice matrix
-    num_col = math.trunc(num_col)
+    ch1 = result[0]#[0:end_index] # Reducing redout data on scope ch1 to Sequence length (Marker length) 
+    #num_col = float(ch1.size)/Num_of_pulses # Rounded integer value (to lower) of columns in slice matrix
+    #num_col = math.trunc(num_col)
     #Num_of_pulses += 1
     ch1 = ch1[0:num_col*Num_of_pulses] # Cutting ch1 to element number of num_col*Num_of_pulses needed for proper reshaping into slice matrix
     ch1mat = reshape(ch1,(Num_of_pulses, num_col)) # Creating slice matrix
