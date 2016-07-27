@@ -157,7 +157,7 @@ class Pulse():
         #self.Max_amp = max(self.waveform)         # Saving Max_amp to be able to set the AWG
         self.waveform = self.waveform/AWGMaxAmp     # Scaling
         mean = mean*self.AmpUnits/AWGMaxAmp
-        self.waveform = self.waveform - mean   # Substracting mean value in order not to heat up the fridge
+        #self.waveform = self.waveform - mean   # Substracting mean value in order not to heat up the fridge
 
     def reverse_rescaleAmplitude(self, AWGMaxAmp):
         wav = self.waveform*AWGMaxAmp

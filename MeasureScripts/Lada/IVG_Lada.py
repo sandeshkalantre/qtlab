@@ -24,7 +24,7 @@ leak_test = False
 
 # you define two vectors of what you want to sweep. In this case
 # a magnetic field (b_vec) and a frequency (f_vec)
-v_vec = arange(0,2315,4)
+v_vec = arange(0,2348,4)
 
 
 
