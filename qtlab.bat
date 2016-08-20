@@ -21,8 +21,8 @@ SET PATH=%CD%\3rd_party\Console2\;%PATH%
 ::SET PATH=%CD%\3rd_party\gtk\bin;%CD%\3rd_party\gtk\lib;%PATH%
 
 :: Check for version of python
-IF EXIST C:\Users\nanoelectronics\AppData\Local\Enthought\Canopy32\User\Scripts\python.exe (
-    SET PYTHON_PATH=C:\Users\nanoelectronics\AppData\Local\Enthought\Canopy32\User\Scripts
+IF EXIST C:\Users\mbelab\AppData\Local\Enthought\Canopy32\User\Scripts\python.exe (
+    SET PYTHON_PATH=C:\Users\mbelab\AppData\Local\Enthought\Canopy32\User\Scripts
     GOTO mark1
 )
 IF EXIST c:\python26\python.exe (

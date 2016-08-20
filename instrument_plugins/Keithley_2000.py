@@ -72,7 +72,10 @@ class Keithley_2000(Instrument):
 
         # Add some global constants
         self._address = address
-        self._visainstrument = visa.instrument(self._address)
+        if self._address != None:
+            self._visainstrument = visa.instrument.open_resource(self._address)
+        else:    
+            self._visainstrument = None
         self._modes = ['VOLT:AC', 'VOLT:DC', 'CURR:AC', 'CURR:DC', 'RES',
             'FRES', 'TEMP', 'FREQ']
         self._change_display = change_display
@@ -172,6 +175,11 @@ class Keithley_2000(Instrument):
 # --------------------------------------
 #           functions
 # --------------------------------------
+    def _write(self,com):
+        self._visainstrument.write(com)
+
+    def _query(self,com):
+        return self._visainstrument.query(com)
 
     def reset(self):
         '''
@@ -208,7 +216,7 @@ class Keithley_2000(Instrument):
 
         self.set_mode_volt_dc()
         self.set_digits(7)
-        self.set_trigger_continuous(True)
+        self.set_trigger_continuous(False)
         self.set_range(10)
         self.set_nplc(1)
         self.set_averaging(False)
@@ -294,7 +302,7 @@ class Keithley_2000(Instrument):
         trigger_status = self.get_trigger_continuous(query=False)
         if self._trigger_sent and (not trigger_status):
             logging.debug('Fetching data')
-            reply = self._visainstrument.ask('FETCH?')
+            reply = self._visainstrument.query('FETCH?')
             self._trigger_sent = False
             return float(reply[0:15])
         elif (not self._trigger_sent) and (not trigger_status):
@@ -477,7 +485,7 @@ class Keithley_2000(Instrument):
             return float(0)
         self._trigger_sent = False
 
-        text = self._visainstrument.ask('DATA:FRESH?')
+        text = self._visainstrument.query('DATA:FRESH?')
             # Changed the query to from Data?
             # to Data:FRESH? so it will actually wait for the
             # measurement to finish.
@@ -502,7 +510,7 @@ class Keithley_2000(Instrument):
         '''
         logging.debug('Read last value')
 
-        text = self._visainstrument.ask('DATA?')
+        text = self._visainstrument.query('DATA?')
         return float(text[0:15])
 
     def do_get_readval(self, ignore_error=False):
@@ -528,7 +536,7 @@ class Keithley_2000(Instrument):
             return float(text[0:15])
         elif not trigger_status:
             logging.debug('Read current value')
-            text = self._visainstrument.ask('READ?')
+            text = self._visainstrument.query('READ?')
             self._trigger_sent = False
             return float(text[0:15])
         else:
@@ -809,8 +817,8 @@ class Keithley_2000(Instrument):
         '''
         string = 'SENS:FUNC?'
         logging.debug('Getting mode')
-        ans = self._visainstrument.ask(string)
-        return ans.strip('"')
+        ans = self._visainstrument.query(string)
+        return ans.rstrip()[1:-1]
 
     def do_get_display(self):
         '''
@@ -824,7 +832,7 @@ class Keithley_2000(Instrument):
             False= Off
         '''
         logging.debug('Reading display from instrument')
-        reply = self._visainstrument.ask('DISP:ENAB?')
+        reply = self._visainstrument.query('DISP:ENAB?')
         return bool(int(reply))
 
     def do_set_display(self, val):
@@ -852,7 +860,7 @@ class Keithley_2000(Instrument):
             reply (boolean) : Autozero status.
         '''
         logging.debug('Reading autozero status from instrument')
-        reply = self._visainstrument.ask(':ZERO:AUTO?')
+        reply = self._visainstrument.query(':ZERO:AUTO?')
         return bool(int(reply))
 
     def do_set_autozero(self, val):
@@ -1059,7 +1067,7 @@ class Keithley_2000(Instrument):
         '''
         mode = self._determine_mode(mode)
         string = ':%s:%s?' % (mode, par)
-        ans = self._visainstrument.ask(string)
+        ans = self._visainstrument.query(string)
         logging.debug('ask instrument for %s (result %s)' % \
             (string, ans))
         return ans

@@ -72,7 +72,10 @@ class Keithley_2100(Instrument):
 
         # Add some global constants
         self._address = address
-        self._visainstrument = visa.instrument(self._address)
+        if self._address != None:
+            self._visainstrument = visa.instrument.open_resource(self._address)
+        else:    
+            self._visainstrument = None
         self._modes = ['VOLT:AC', 'VOLT:DC', 'CURR:AC', 'CURR:DC', 'RES',
             'FRES', 'TEMP', 'FREQ']
         self._change_display = change_display
